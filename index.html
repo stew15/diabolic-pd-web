@@ -242,6 +242,62 @@ if (navigator.storage && navigator.storage.persist) {
   });
 }
 </script>
+<script>
+/* ---- loading message + on-screen error box ------------------------------------------------------------
+   The game code is ~25 MB; until it has downloaded and started, the page would otherwise be plain black.
+   Shows "Loading... Ns" until the game publishes window.__epdHud, and shows any script error, unhandled
+   promise rejection or WebGL failure in a red box, so a phone user can screenshot what went wrong. */
+(function () {
+  var t0 = Date.now(), box, err, gone = false;
+  function ui() {
+    if (box) return;
+    box = document.createElement('div');
+    box.id = 'dpd-loading';
+    box.style.cssText = 'position:fixed;left:0;right:0;top:42%;z-index:30;text-align:center;font:14px sans-serif;'
+      + 'color:#cfc4a8;pointer-events:none;text-shadow:0 0 4px #000';
+    (document.body || document.documentElement).appendChild(box);
+  }
+  function showError(msg) {
+    if (!err) {
+      err = document.createElement('div');
+      err.id = 'dpd-error';
+      err.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:40;font:12px monospace;color:#fff;'
+        + 'background:rgba(140,20,30,0.92);padding:8px;border-radius:6px;white-space:pre-wrap;max-height:45%;overflow:auto';
+      (document.body || document.documentElement).appendChild(err);
+      err.textContent = 'Something went wrong - please screenshot this:\n';
+    }
+    err.textContent += '\n' + String(msg).slice(0, 600);
+  }
+  window.__dpdShowError = showError;
+  window.addEventListener('error', function (e) {
+    showError((e.message || 'error') + (e.filename ? '  @ ' + e.filename.split('/').pop() + ':' + e.lineno : ''));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    showError('unhandled: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason));
+  });
+  /* WebGL availability: report if the game's canvas cannot get a context */
+  var getCtx = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, opts) {
+    var c = getCtx.call(this, type, opts);
+    if (!c && /webgl/.test(type)) showError('WebGL context could not be created (' + type + ')');
+    return c;
+  };
+  function tick() {
+    if (gone) return;
+    if (window.__epdHud) {
+      gone = true;
+      if (box) box.remove();
+      return;
+    }
+    ui();
+    var s = Math.round((Date.now() - t0) / 1000);
+    box.textContent = 'Diabolic Pixel Dungeon\nLoading... ' + s + 's' + (s > 45 ? '\n(first load downloads ~25 MB)' : '');
+    box.style.whiteSpace = 'pre';
+    setTimeout(tick, 500);
+  }
+  document.addEventListener('DOMContentLoaded', tick);
+})();
+</script>
 <!-- EPD-PWA:END -->
 </head>
     <body oncontextmenu="return false">
