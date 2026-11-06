@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Eternity Pixel Dungeon</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #000;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            #canvas {
+                border: none;
+            }
+        </style>
+    <script>(function(){var g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){var c=g.call(this,t,o);if(c&&(t==='webgl'||t==='experimental-webgl')&&c.getExtension){try{c.getExtension('OES_standard_derivatives');}catch(e){}}return c;};})();</script>
+<!-- EPD-PWA:BEGIN -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Diabolic PD">
+<meta name="application-name" content="Diabolic PD">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="icons-pwa/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons-pwa/icon-192.png">
+<style>
+  html, body {
+    position: fixed; inset: 0; margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden; background: #000;
+    overscroll-behavior: none; touch-action: none;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  body { display: block !important; }
+  body > div { position: static; }
+  /* The canvas is placed by script (left/top/width/height px) inside the iOS safe area.
+     It must stay position:fixed: gdx-teavm's touch math only adds the canvas' own offsetTop/Left. */
+  #canvas {
+    position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; display: block;
+    border: none; outline: none; touch-action: none; background: #000;
+  }
+  #canvas.epd-crisp { image-rendering: pixelated; image-rendering: crisp-edges; }
+  #epd-probe {
+    position: fixed; left: 0; top: 0; width: 0; visibility: hidden; pointer-events: none;
+    height: 100vh; height: 100lvh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+</style>
+<script>
+/* ---- canvas placement: fill the iOS safe area exactly ----------------------------------------------
+   WebLauncher uses width/height -1, so gdx-teavm never sizes the canvas; this script does, and the game
+   picks the new backbuffer size up on its next frame (Game.resize -> scene reset/relayout, like desktop).
+   Backbuffer = CSS px (1:1, no stretching), upscaled with nearest-neighbour on integer-DPR screens.
+   Re-run live on resize / visualViewport resize / orientationchange / screen.orientation change /
+   ResizeObserver and a 500 ms poll, so a foldable switching screens (iPhone Duo outer <-> inner) without a
+   reload is picked up.
+   Height rules (never taller than what is visible):
+   - Browser tab: min(innerHeight, visualViewport.height) - Safari's toolbars can overlap the layout viewport.
+   - Home Screen app (standalone, black-translucent + viewport-fit=cover): iOS can report innerHeight/100dvh
+     short by the status bar while drawing the page from the very top of the screen. The full height is
+     taken from 100lvh or from the screen size, but ONLY when that source describes this display
+     (screen short/long side matches the current width) and the gap is status-bar sized (<= 80 px).
+     If iOS then also reports all safe-area insets as 0, the gap is used as the top inset (portrait) so
+     the HUD is not drawn under the status bar / Dynamic Island.
+   Test hooks: ?epdInsets=top,right,bottom,left or window.__epdForceInsets = [t,r,b,l] override
+   env(safe-area-inset-*); window.__epdForceStandalone = true fakes Home Screen mode;
+   window.__epdComputeFrame(inputs) is the pure placement function. */
+(function () {
+  var q = /[?&]epdInsets=([\d.,]+)/.exec(location.search);
+  if (q) window.__epdForceInsets = q[1].split(',').map(Number);
+  var MAX_GAP = 80;
+  function standalone() {
+    if (window.__epdForceStandalone !== undefined) return !!window.__epdForceStandalone;
+    return navigator.standalone === true ||
+      (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches));
+  }
+  /* pure: inputs -> {vw, vh, t, r, b, l, ox, oy, fix} */
+  function computeFrame(i) {
+    var env = (i.env || [0, 0, 0, 0]).map(function (v) { return v || 0; });
+    var t = env[0], r = env[1], b = env[2], l = env[3];
+    var vw = i.innerW, vh = i.innerH, ox = 0, oy = 0, fix = '';
+    if (i.clientW > 0 && Math.abs(i.clientW - vw) < 2) vw = i.clientW;
+    if (!i.standalone) {
+      var vv = i.vv;
+      if (vv && vv.w > 0 && vv.h > 0 && Math.abs((vv.scale || 1) - 1) < 0.01) {
+        if (vv.h < vh - 0.5) { vh = vv.h; oy = Math.max(0, vv.ot || 0); fix = 'vv-h'; }
+        if (vv.w < vw - 0.5) { vw = vv.w; ox = Math.max(0, vv.ol || 0); fix += (fix ? '+' : '') + 'vv-w'; }
+      }
+    } else {
+      var landscape = vw > vh;
+      var full = vh;
+      if (i.lvh > vh && i.lvh - vh <= MAX_GAP) full = Math.max(full, i.lvh);
+      var sMin = Math.min(i.screenW || 0, i.screenH || 0), sMax = Math.max(i.screenW || 0, i.screenH || 0);
+      var sW = landscape ? sMax : sMin, sH = landscape ? sMin : sMax;
+      var screenOk = sW > 0 && Math.abs(sW - vw) <= 2;          /* screen object describes THIS display */
+      if (screenOk && sH > vh && sH - vh <= MAX_GAP) full = Math.max(full, sH);
+      if (screenOk && full > sH) full = sH;                     /* never taller than the screen */
+      if (full > vh + 0.5) {
+        var gap = full - vh;
+        fix = 'standalone-gap ' + Math.round(gap);
+        vh = full;
+        if (!i.forced && t === 0 && r === 0 && b === 0 && l === 0) {
+          /* iOS reported no safe area at all, yet draws under the status bar: keep the HUD clear of it */
+          if (!landscape) { t = gap; b = 20; } else { b = 20; }
+          fix += ' +insets';
+        }
+      }
+    }
+    return { vw: vw, vh: vh, t: t, r: r, b: b, l: l, ox: ox, oy: oy, fix: fix };
+  }
+  window.__epdComputeFrame = computeFrame;
+  var probe;
+  function inputs() {
+    if (!probe) {
+      probe = document.createElement('div'); probe.id = 'epd-probe';
+      (document.body || document.documentElement).appendChild(probe);
+    }
+    var cs = getComputedStyle(probe), vv = window.visualViewport, de = document.documentElement;
+    var forced = window.__epdForceInsets;
+    return {
+      innerW: window.innerWidth, innerH: window.innerHeight, clientW: de ? de.clientWidth : 0,
+      vv: vv ? { w: vv.width, h: vv.height, ot: vv.offsetTop, ol: vv.offsetLeft, scale: vv.scale } : null,
+      lvh: parseFloat(cs.height) || 0, screenW: screen.width, screenH: screen.height,
+      env: forced || [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map(parseFloat),
+      forced: !!forced, standalone: !!standalone()
+    };
+  }
+  var last = '';
+  function layout() {
+    var c = document.getElementById('canvas');
+    if (!c) return;
+    var m = computeFrame(inputs());
+    var L = Math.round(m.ox + m.l), T = Math.round(m.oy + m.t);
+    var W = Math.max(1, Math.floor(m.vw - m.l - m.r)), H = Math.max(1, Math.floor(m.vh - m.t - m.b));
+    var key = [L, T, W, H].join(',');
+    if (key !== last) {
+      last = key;
+      c.style.left = L + 'px'; c.style.top = T + 'px';
+      c.style.width = W + 'px'; c.style.height = H + 'px';
+    }
+    if (c.width !== W) c.width = W;
+    if (c.height !== H) c.height = H;
+    var crisp = Math.abs((window.devicePixelRatio || 1) - Math.round(window.devicePixelRatio || 1)) < 0.01;
+    c.classList.toggle('epd-crisp', crisp);
+    window.__epdFrame = { left: L, top: T, width: W, height: H, insets: [m.t, m.r, m.b, m.l], vw: m.vw, vh: m.vh,
+                          innerW: window.innerWidth, innerH: window.innerHeight, standalone: !!standalone(), fix: m.fix };
+  }
+  window.__epdLayout = layout;
+  function burst() {
+    layout();
+    requestAnimationFrame(layout);
+    [50, 150, 300, 600, 1000, 2000].forEach(function (t) { setTimeout(layout, t); });
+  }
+  window.__epdLayoutBurst = burst;
+  document.addEventListener('DOMContentLoaded', function () {
+    layout();
+    if (window.ResizeObserver) { try { new ResizeObserver(burst).observe(document.documentElement); } catch (e) {} }
+  });
+  window.addEventListener('resize', burst);
+  window.addEventListener('orientationchange', burst);
+  window.addEventListener('pageshow', burst);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) burst(); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', burst);
+  if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', burst);
+  if (window.matchMedia) { try { matchMedia('(orientation: portrait)').addEventListener('change', burst); } catch (e) {} }
+  window.addEventListener('load', function () { burst(); setInterval(layout, 500); });
+  /* no pinch/double-tap zoom or page bounce */
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false });
+})();
+
+/* ---- saves: make IndexedDB writes land before iOS suspends a hidden page ---------------------------
+   gdx-teavm writes every file with its own one-request readwrite transaction; commit() it right away
+   instead of waiting for the task to end. __epdIdbPending counts transactions not yet complete. */
+(function () {
+  if (!window.IDBObjectStore) return;
+  window.__epdIdbPending = 0;
+  var P = IDBObjectStore.prototype;
+  ['put', 'delete'].forEach(function (m) {
+    var orig = P[m];
+    P[m] = function () {
+      var req = orig.apply(this, arguments);
+      try {
+        var tx = this.transaction;
+        if (tx && tx.mode === 'readwrite' && !tx.__epd) {
+          tx.__epd = true;
+          window.__epdIdbPending++;
+          var done = function () { window.__epdIdbPending = Math.max(0, window.__epdIdbPending - 1); };
+          tx.addEventListener('complete', done); tx.addEventListener('abort', done); tx.addEventListener('error', done);
+          if (typeof tx.commit === 'function') tx.commit();
+        }
+      } catch (e) {}
+      return req;
+    };
+  });
+})();
+
+/* ---- offline support + prompt updates ---------------------------------------------------------------
+   The new service worker activates immediately (skipWaiting + clients.claim). When it takes over a page
+   that already had an older one, reload once - right away on the title screen, or (mid-run) the next time
+   the app comes back to the foreground, after the hide-save. Updates are checked on launch and resume. */
+if ('serviceWorker' in navigator) {
+  (function () {
+    var hadController = !!navigator.serviceWorker.controller, pending = false, reloaded = false;
+    function reload() { if (reloaded) return; reloaded = true; location.reload(); }
+    function inRun() { return !!(window.__epdHud && window.__epdHud.inGame); }
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController) { hadController = true; return; }
+      pending = true;
+      if (!inRun()) reload();
+    });
+    setInterval(function () { if (pending && !inRun()) reload(); }, 2000);
+    var reg = null;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js', { scope: './' })
+        .then(function (r) { reg = r; })
+        .catch(function (e) { console.warn('SW registration failed', e); });
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) return;
+      if (pending) { reload(); return; }
+      if (reg) reg.update().catch(function () {});
+    });
+  })();
+}
+if (navigator.storage && navigator.storage.persist) {
+  window.addEventListener('load', function () {
+    navigator.storage.persisted().then(function (p) { return p || navigator.storage.persist(); })
+      .then(function (p) { window.__epdPersisted = p; }).catch(function () {});
+  });
+}
+</script>
+<!-- EPD-PWA:END -->
+</head>
+    <body oncontextmenu="return false">
+        <div>
+            <canvas id="canvas"></canvas>
+        </div>
+        <script>
+            async function start() {
+                main()
+            }
+            window.addEventListener("load", start);
+        </script>
+        <script type="text/javascript" charset="utf-8" src="app.js"></script>
+    </body>
+</html>
