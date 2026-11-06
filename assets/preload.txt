@@ -254,7 +254,7 @@ i:b:/messages/journal/journal_nl.properties:41385:1
 i:b:/messages/journal/journal_uk.properties:61258:1
 i:b:/messages/journal/journal_fr.properties:42619:1
 i:b:/messages/journal/journal_ru.properties:66333:1
-i:b:/messages/journal/journal.properties:37113:1
+i:b:/messages/journal/journal.properties:37137:1
 i:b:/messages/journal/journal_tr.properties:39943:1
 i:b:/messages/journal/journal_pt.properties:40378:1
 i:b:/messages/journal/journal_be.properties:60499:1
@@ -283,7 +283,7 @@ i:b:/messages/scenes/scenes_tr.properties:14466:1
 i:b:/messages/scenes/scenes_eo.properties:14012:1
 i:b:/messages/scenes/scenes_de.properties:15469:1
 i:b:/messages/scenes/scenes_vi.properties:17612:1
-i:b:/messages/scenes/scenes.properties:13429:1
+i:b:/messages/scenes/scenes.properties:13433:1
 i:b:/messages/scenes/scenes_pt.properties:14747:1
 i:b:/messages/scenes/scenes_zh.properties:13323:1
 i:b:/messages/scenes/scenes_ja.properties:17112:1
