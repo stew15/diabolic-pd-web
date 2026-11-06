@@ -388,7 +388,7 @@ i:b:/messages/plants/plants_hu.properties:6696:1
 i:b:/messages/plants/plants_tr.properties:6800:1
 i:b:/messages/private/private_be.properties:13179:1
 i:b:/messages/private/private_eo.properties:9393:1
-i:b:/messages/windows/windows.properties:43598:1
+i:b:/messages/windows/windows.properties:43647:1
 i:b:/messages/windows/windows_hu.properties:37859:1
 i:b:/messages/windows/windows_de.properties:38334:1
 i:b:/messages/windows/windows_it.properties:36651:1
