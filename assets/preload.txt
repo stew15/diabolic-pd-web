@@ -267,12 +267,12 @@ i:b:/messages/journal/journal_zh-hant.properties:35153:1
 i:b:/messages/journal/journal_cs.properties:40152:1
 i:b:/messages/journal/journal_el.properties:67476:1
 i:b:/messages/journal/journal_sv.properties:40354:1
-i:b:/messages/world/town.properties:2782:1
+i:b:/messages/world/town.properties:3077:1
 i:b:/messages/world/world.properties:2466:1
-i:b:/messages/world/saves.properties:1763:1
+i:b:/messages/world/saves.properties:2376:1
 i:b:/messages/world/hud.properties:730:1
 i:b:/messages/world/death.properties:323:1
-i:b:/messages/world/travel.properties:1467:1
+i:b:/messages/world/travel.properties:1562:1
 i:b:/messages/scenes/scenes_it.properties:14643:1
 i:b:/messages/scenes/scenes_hu.properties:15096:1
 i:b:/messages/scenes/scenes_zh-hant.properties:12573:1

@@ -56,6 +56,40 @@
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
              env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
+  /* Backup overlay (docs/arch/10-m1-design.md §9): browsers start a download, the share sheet or a file
+     picker only from a real tap/click/key press, so export and import show these HTML buttons over the
+     canvas. Markup at the end of <body>; WebPlatformSupport.jsShowOverlay sets the labels and handlers. */
+  @font-face { font-family: 'EPD Pixel'; src: url('assets/fonts/pixel_font.ttf'); font-display: swap; }
+  #epd-overlay {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+             max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    box-sizing: border-box; background: rgba(4, 2, 2, 0.62); touch-action: manipulation;
+    font: 16px/1.35 'EPD Pixel', 'Courier New', monospace; color: #d8ccb0;
+  }
+  #epd-overlay[hidden], #epd-overlay [hidden] { display: none !important; }
+  #epd-overlay .epd-ov-box {
+    box-sizing: border-box; width: min(100%, 440px); padding: 18px 18px 14px; text-align: center;
+    background: #17110e; border: 2px solid #6e5437; outline: 2px solid #0a0706;
+    box-shadow: 0 0 0 4px #2b1f16, 0 8px 32px rgba(0, 0, 0, 0.8);
+  }
+  #epd-overlay p { margin: 0 0 14px; overflow-wrap: anywhere; }
+  #epd-ov-name { color: #a89c84; font-size: 14px; }
+  #epd-ov-pad { margin: 12px 0 0; color: #e3b45c; }
+  #epd-overlay .epd-ov-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  #epd-overlay button {
+    flex: 1 1 150px; min-height: 44px; padding: 8px 14px; cursor: pointer;
+    font: inherit; color: #eadfc4; background: #33261b; border: 2px solid #6e5437; border-radius: 0;
+    -webkit-appearance: none; appearance: none; touch-action: manipulation;
+  }
+  #epd-overlay button.epd-ov-go { background: #5b2119; border-color: #a0543a; color: #fff1d6; }
+  #epd-overlay button:hover { filter: brightness(1.18); }
+  #epd-overlay button:active { filter: brightness(0.9); }
+  #epd-overlay button:focus { outline: none; }
+  #epd-overlay button:focus-visible, #epd-overlay button:focus {
+    box-shadow: 0 0 0 2px #17110e, 0 0 0 4px #e3b45c;
+  }
+  #epd-ov-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 </style>
 <script>
 /* ---- canvas placement: fill the iOS safe area exactly ----------------------------------------------
@@ -311,5 +345,19 @@ if (navigator.storage && navigator.storage.persist) {
             window.addEventListener("load", start);
         </script>
         <script type="text/javascript" charset="utf-8" src="app.js"></script>
-    </body>
+    <!-- EPD-OVERLAY:BEGIN -->
+<div id="epd-overlay" role="dialog" aria-modal="true" hidden>
+  <div class="epd-ov-box">
+    <p id="epd-ov-name" hidden></p>
+    <div class="epd-ov-row">
+      <button type="button" id="epd-ov-save" class="epd-ov-go" hidden></button>
+      <button type="button" id="epd-ov-open" class="epd-ov-go" hidden></button>
+      <button type="button" id="epd-ov-cancel"></button>
+    </div>
+    <p id="epd-ov-pad" hidden></p>
+    <input type="file" id="epd-ov-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+  </div>
+</div>
+<!-- EPD-OVERLAY:END -->
+</body>
 </html>
