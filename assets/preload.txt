@@ -171,8 +171,15 @@ i:b:/music/city_1.ogg:221914:1
 i:b:/music/halls_3.ogg:554503:1
 i:b:/music/caves_boss.ogg:791684:1
 i:b:/music/halls_1.ogg:483192:1
+i:b:/data/loot_tables.json:2649:1
+i:b:/data/sets.json:2387:1
+i:b:/data/affixes.json:27770:1
+i:b:/data/names.json:3048:1
+i:b:/data/uniques.json:2380:1
 i:b:/data/maps/act1_overworld.map:6625:1
 i:b:/data/maps/lantern_rest.map:3284:1
+i:b:/data/legendary_powers.json:8443:1
+i:b:/data/bases.json:58552:1
 i:b:/fonts/pixel_font.ttf:67260:1
 i:b:/fonts/pixel_font.png:797:1
 i:b:/messages/levels/levels_zh.properties:23286:1
@@ -270,7 +277,7 @@ i:b:/messages/journal/journal_sv.properties:40354:1
 i:b:/messages/world/town.properties:3077:1
 i:b:/messages/world/world.properties:2466:1
 i:b:/messages/world/saves.properties:2376:1
-i:b:/messages/world/hud.properties:730:1
+i:b:/messages/world/hud.properties:789:1
 i:b:/messages/world/death.properties:323:1
 i:b:/messages/world/travel.properties:1562:1
 i:b:/messages/scenes/scenes_it.properties:14643:1
@@ -322,6 +329,7 @@ i:b:/messages/misc/misc_hu.properties:19633:1
 i:b:/messages/items/items_uk.properties:376136:1
 i:b:/messages/items/items_eo.properties:249858:1
 i:b:/messages/items/items_sv.properties:259265:1
+i:b:/messages/items/gear.properties:6924:1
 i:b:/messages/items/items_es.properties:264108:1
 i:b:/messages/items/items_ja.properties:285360:1
 i:b:/messages/items/items_el.properties:401647:1
@@ -425,6 +433,7 @@ i:b:/sprites/spawner.png:2735:1
 i:b:/sprites/shaman.png:1235:1
 i:b:/sprites/golem.png:522:1
 i:b:/sprites/warrior.png:3517:1
+i:b:/sprites/gear.png:11615:1
 i:b:/sprites/act1/ghoul.png:1440:1
 i:b:/sprites/act1/npc_odile.png:558:1
 i:b:/sprites/act1/plague_bearer.png:1779:1
@@ -472,6 +481,7 @@ i:b:/sprites/mimic.png:3139:1
 i:b:/sprites/succubus.png:576:1
 i:b:/sprites/bee.png:598:1
 i:b:/sprites/items.png:27186:1
+i:b:/sprites/gear_ui.png:896:1
 i:b:/sprites/rot_heart.png:865:1
 i:b:/sprites/snake.png:390:1
 i:b:/sprites/rot_lasher.png:382:1
