@@ -6,6 +6,11 @@
 # the middle of the yard and everyone arrives beside it. Row 0 is solid wall (the border row is always
 # impassable), so the gate sits on row 1.
 #
+# The way out (M2-28): each gatepost statue ('s' right beside each end of the gate rect) bears a lit
+# brazier that TownLevel draws over the wall, and the exit label "Old Coach Road" hangs over the gate
+# between them. Keep the statues there and the three G cells between them; the braziers are visuals
+# (no actor, no marker), so the G8 lane rule below is untouched.
+#
 # G8 lanes (asserted by MapSourceTest and TownTest): (16..19,11) free floor, (20,11) wall, x=19 for
 # y=12..22 free floor or water, and no NPC or object within one cell of (19,11) and (19,12..22).
 #
@@ -26,7 +31,7 @@ legend
   b BOOKSHELF                      # shelves
   v BOOKSHELF                      # smithy tool racks
   B BARRICADE                      # hay bales
-  s STATUE                         # gateposts
+  s STATUE                         # gateposts (each bears a lit brazier)
   p PEDESTAL                       # altar dais
   e EMBERS                         # hearths and forge
   o EMPTY_WELL                     # the yard well

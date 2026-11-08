@@ -1,5 +1,5 @@
 { "sources": {
-    "normal":    { "itemChance": 0.12, "count": [1,1], "gold": 0.35, "potion": 0.06, "rareMult": 1 },
+    "normal":    { "itemChance": 0.18, "count": [1,1], "gold": 0.35, "potion": 0.06, "rareMult": 1 },
     "champion":  { "itemChance": 1, "count": [1,2], "gold": 1, "potion": 0.30, "rareMult": 2 },
     "elite":     { "itemChance": 1, "count": [2,3], "gold": 1, "potion": 0.50, "rareMult": 3, "atLeast": "MAGIC" },
     "boss":      { "itemChance": 1, "count": [4,6], "gold": 1, "potion": 1, "rareMult": 1, "atLeast": "RARE" },
