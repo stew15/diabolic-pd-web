@@ -173,7 +173,7 @@ i:b:/music/halls_3.ogg:554503:1
 i:b:/music/caves_boss.ogg:791684:1
 i:b:/music/halls_1.ogg:483192:1
 i:b:/data/combat.json:508:1
-i:b:/data/skills/builds.json:18814:1
+i:b:/data/skills/builds.json:18785:1
 i:b:/data/skills/occultist/blood_rites.json:7440:1
 i:b:/data/skills/occultist/thrall_binding.json:9631:1
 i:b:/data/skills/occultist/hexes.json:7671:1
