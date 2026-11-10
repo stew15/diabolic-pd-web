@@ -23,7 +23,7 @@
                "LEGENDARY":{"ash":1,"ember":2}, "SET":{"shards":1}, "UNIQUE":{"shards":1}, "perIlvl": 20 },
   "gold": { "base": 4, "perAL": 2, "spread": [0.5,1.5] }, "potions": { "rejuvenation": 0.10 },
   "archetype": { "WARRIOR":"penitent", "DUELIST":"penitent", "CLERIC":"penitent", "HUNTRESS":"witch_hunter",
-                 "ROGUE":"witch_hunter", "MAGE":"occultist" },
+                 "ROGUE":"witch_hunter", "MAGE":"occultist",
+                 "PENITENT":"penitent", "WITCH_HUNTER":"witch_hunter", "OCCULTIST":"occultist" },
   "armourClasses": { "penitent": ["heavy","medium"], "witch_hunter": ["medium","light"], "occultist": ["light"] },
-  "m2Bridge": { "max_life":0.2, "vit_life":0.6, "accuracy":0.1, "dex_accuracy":0.4, "evasion":0.1, "phys_flat":0.35,
-                "elemental_flat":0.35, "thorns":0.35, "life_regen":0.2, "life_per_kill":0.2, "armour_dr":0.1 } }
+  "m2Bridge": { "accuracy":0.1, "dex_accuracy":0.4, "evasion":0.1 } }
