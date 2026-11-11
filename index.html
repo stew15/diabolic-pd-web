@@ -67,11 +67,12 @@
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
              env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
   }
-  /* ?viewdiag=1 (M3-45): the frame's measurements as text, for an on-device screenshot; the script places it
-     inside the safe area at its left edge, under the status pane (clear of the HUD's corners and bottom rows) */
+  /* the view diagnostic (M3-45, M3-47: ?viewdiag=1, or by itself in a Home Screen app whose viewport stays
+     short): the frame's measurements as text, for an on-device screenshot; the script places it inside the safe
+     area at its left edge, under the status pane (clear of the HUD's corners and bottom rows) */
   #epd-viewdiag {
     position: fixed; z-index: 40; left: 6px; top: 36%; margin: 0; padding: 6px 8px; box-sizing: border-box;
-    white-space: pre; overflow: hidden; font: 11px/1.35 Menlo, 'Courier New', monospace; color: #b8f0b0;
+    white-space: pre-wrap; overflow: hidden; font: 11px/1.35 Menlo, 'Courier New', monospace; color: #b8f0b0;
     background: rgba(0, 0, 0, 0.74); border: 1px solid #4a6a44; cursor: pointer; touch-action: manipulation;
     -webkit-user-select: none; user-select: none;
   }
@@ -139,10 +140,16 @@
      innerHeight, CSS px).
    The insets the game gets are the safe area's overlap with the canvas (a tab's canvas can start below
    the layout viewport's top). The page never scrolls (touchmove is prevented; layout() puts scrollY back).
-   ?viewdiag=1 shows the measurements live in a small text panel (for an on-device screenshot; tap hides it).
+   The view diagnostic shows the measurements live in a small text panel (for an on-device screenshot):
+   ?viewdiag=1 shows it anywhere; in the Home Screen app it shows itself, once per launch, when the frame
+   still reads short 2 s after load (M3-47: the manifest's start_url carries no query, and standalone is the
+   one mode WebKit 301108 shows in); ?viewdiag=0 never shows it. A tap or click on it, the first Escape or the
+   first gamepad button hides it, and that input never reaches the game.
    Test hooks: ?epdInsets=top,right,bottom,left or window.__epdForceInsets = [t,r,b,l] override
-   env(safe-area-inset-*); window.__epdForceStandalone = true fakes Home Screen mode;
-   window.__epdComputeFrame(inputs) is the pure placement function (tools/web/phonefit.js checks it). */
+   env(safe-area-inset-*); window.__epdForceStandalone = true fakes Home Screen mode; window.__epdForceLvh = n
+   overrides 100lvh (n above innerHeight forces the short case); window.__epdComputeFrame(inputs) is the pure
+   placement function and window.__epdAutoDiag(frame, shortMs, search) the pure show-the-panel decision
+   (tools/web/phonefit.js checks both); window.__epdDiag {shown, by, hidden, rearm()} the panel's state. */
 (function () {
   var q = /[?&]epdInsets=([\d.,]+)/.exec(location.search);
   if (q) window.__epdForceInsets = q[1].split(',').map(Number);
@@ -172,15 +179,28 @@
       /* the layout viewport and never more: WebKit paints nothing below it (WebKit 301108) */
       fix = 'standalone';
       if ((i.lvh || 0) > vh + 0.5) fix += ' short ' + Math.round(i.lvh - vh);
+      /* env() reports no inset at all (on a phone with a status bar: the insets are not reaching the page) */
+      if (!(t || r || b || l)) fix += ' env0';
     }
     /* the safe area's overlap with the canvas */
     t = Math.max(0, t - oy);
     l = Math.max(0, l - ox);
     b = Math.max(0, b - Math.max(0, layoutH - (oy + vh)));
     r = Math.max(0, r - Math.max(0, layoutW - (ox + vw)));
-    return { vw: vw, vh: vh, t: t, r: r, b: b, l: l, ox: ox, oy: oy, fix: fix };
+    return { vw: vw, vh: vh, t: t, r: r, b: b, l: l, ox: ox, oy: oy, fix: fix, standalone: !!i.standalone };
   }
   window.__epdComputeFrame = computeFrame;
+  /* pure: whether the view diagnostic shows - ?viewdiag=0 never, ?viewdiag=1 always; otherwise only in the
+     Home Screen app (frame.standalone) while the frame reads short (fix 'standalone short <n>': 100lvh above
+     innerHeight) and has read short for DIAG_SETTLE ms since load (shortMs), past the burst of layouts */
+  var DIAG_SETTLE = 2000;
+  function autoDiag(f, shortMs, search) {
+    var q = search == null ? location.search : String(search);
+    if (/[?&]viewdiag=0(&|$)/.test(q)) return false;
+    if (/[?&]viewdiag=1(&|$)/.test(q)) return true;
+    return !!(f && f.standalone && (' ' + (f.fix || '') + ' ').indexOf(' short ') >= 0 && (+shortMs || 0) >= DIAG_SETTLE);
+  }
+  window.__epdAutoDiag = autoDiag;
   var probe;
   function inputs() {
     if (!probe) {
@@ -188,57 +208,129 @@
       (document.body || document.documentElement).appendChild(probe);
     }
     var cs = getComputedStyle(probe), vv = window.visualViewport, de = document.documentElement;
-    var forced = window.__epdForceInsets;
+    var forced = window.__epdForceInsets, flvh = +window.__epdForceLvh > 0 ? +window.__epdForceLvh : 0;
     return {
       innerW: window.innerWidth, innerH: window.innerHeight, clientW: de ? de.clientWidth : 0,
       vv: vv ? { w: vv.width, h: vv.height, ot: vv.offsetTop, ol: vv.offsetLeft, scale: vv.scale } : null,
-      lvh: parseFloat(cs.height) || 0, screenW: screen.width, screenH: screen.height,
+      lvh: flvh || parseFloat(cs.height) || 0, forcedLvh: !!flvh, screenW: screen.width, screenH: screen.height,
       env: forced || [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map(parseFloat),
       forced: !!forced, standalone: !!standalone()
     };
   }
-  /* ?viewdiag=1: the measurements, live, in a small HTML panel inside the safe area (tap to hide) */
-  var diag = null;
-  if (/[?&]viewdiag=1(&|$)/.test(location.search)) {
-    var panel = null, dvh = null, gone = false;
-    diag = function (f) {
-      if (gone || !document.body) return;
-      if (!panel) {
-        dvh = document.createElement('div');
-        dvh.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;height:100dvh;visibility:hidden;pointer-events:none';
-        document.body.appendChild(dvh);
-        panel = document.createElement('div'); panel.id = 'epd-viewdiag';
-        panel.addEventListener('click', function (e) {
-          e.preventDefault(); e.stopPropagation(); gone = true; panel.remove(); dvh.remove();
-        });
-        document.body.appendChild(panel);
-      }
-      var i = f.inputs, vv = window.visualViewport, de = document.documentElement;
-      var n = function (v) { return Math.round((+v || 0) * 10) / 10; };
-      var text = [
-        'viewdiag (tap to hide)',
-        'screen ' + screen.width + 'x' + screen.height + '  dpr ' + n(window.devicePixelRatio || 1),
-        'inner ' + window.innerWidth + 'x' + window.innerHeight +
-          '  vv ' + (vv ? n(vv.width) + 'x' + n(vv.height) + ' @' + n(vv.offsetTop) : '-'),
-        '100lvh ' + n(i.lvh) + '  100dvh ' + n(parseFloat(getComputedStyle(dvh).height)),
-        'env t r b l ' + i.env.map(n).join(' ') + (i.forced ? ' (forced)' : ''),
-        'canvas ' + f.left + ',' + f.top + ' ' + f.width + 'x' + f.height + '  insets ' + f.insets.join(' '),
-        'standalone ' + f.standalone + '  scrollY ' + n(window.scrollY) + '  page h ' + (de ? de.scrollHeight : 0),
-        'fix ' + (f.fix || '-')
-      ].join('\n');
-      if (panel.textContent !== text) panel.textContent = text;
-      /* inside the safe area: at its left edge, below the status pane and above the hero (who stands at the
-         screen's middle), clear of the HUD's corners and its bottom rows */
-      var s = f.safe, down = Math.max(90, (s[3] - s[1]) * 0.2);
-      var pos = (s[0] + 6) + 'px,' + Math.round(s[1] + down) + 'px,' + Math.max(80, s[2] - s[0] - 12) + 'px';
-      if (panel.__pos !== pos) {
-        panel.__pos = pos;
-        var p = pos.split(',');
-        panel.style.left = p[0]; panel.style.top = p[1]; panel.style.maxWidth = p[2];
-      }
-    };
+  /* the view diagnostic: the measurements, live, in a small HTML panel inside the safe area. It appears when
+     autoDiag says so (?viewdiag=1, or the Home Screen app still short 2 s after load), once per launch. A tap or
+     click on it, the first Escape keydown or the first gamepad button press hides it, and none of them acts in
+     the game: the panel's own press events stop at it, the Escape keydown (and its keyup) stop at a capture
+     listener on window (the game listens on document), and the pad button is masked from the game's
+     navigator.getGamepads() reads until it is released (polled each animation frame while the panel shows,
+     and on every read the game makes) */
+  var panel = null, dvh = null, gone = false, eatEscUp = false;
+  var diagState = window.__epdDiag = { shown: false, by: '', hidden: '',
+    rearm: function () { gone = false; diagState.hidden = ''; } };   /* test hook: may show again */
+  function hideDiag(how) {
+    if (!panel) return;
+    gone = true;
+    panel.remove(); dvh.remove(); panel = dvh = null;
+    diagState.shown = false; diagState.hidden = how;
   }
-  var last = '';
+  /* Escape: the first keydown while the panel shows hides it; it and its keyup never reach the game */
+  function diagKeys(e) {
+    if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    if (panel && e.type === 'keydown') { eatEscUp = true; hideDiag('esc'); }
+    else if (eatEscUp && e.type === 'keyup') eatEscUp = false;
+    else return;
+    e.preventDefault(); e.stopImmediatePropagation();
+  }
+  window.addEventListener('keydown', diagKeys, true);
+  window.addEventListener('keyup', diagKeys, true);
+  /* the pad: a button pressed while the panel shows hides it and reads as released to the game until it is
+     let go; a button already held when the panel appeared passes through (installed when the panel first shows) */
+  var realPads = null, padHeld = {}, UP = { pressed: false, touched: false, value: 0 };
+  function down(b) { return !!(b && (b.pressed || b.value >= 0.5)); }
+  function padFilter(pads) {
+    if (!pads) return pads;
+    var out = null, wasShown = !!panel;
+    for (var k = 0; k < pads.length; k++) {
+      var p = pads[k], bs = null;
+      if (!p || !p.buttons) continue;
+      for (var j = 0; j < p.buttons.length; j++) {
+        var id = p.index + ':' + j;
+        if (!down(p.buttons[j])) { delete padHeld[id]; continue; }
+        if (!padHeld[id]) { if (!wasShown) continue; padHeld[id] = 2; hideDiag('pad'); }
+        if (padHeld[id] === 2) { bs = bs || Array.prototype.slice.call(p.buttons); bs[j] = UP; }
+      }
+      if (bs) {
+        out = out || Array.prototype.slice.call(pads);
+        out[k] = { id: p.id, index: p.index, connected: p.connected, mapping: p.mapping, timestamp: p.timestamp,
+                   axes: p.axes, buttons: bs, vibrationActuator: p.vibrationActuator };
+      }
+    }
+    return out || pads;
+  }
+  function padHook() {
+    if (!navigator.getGamepads) return;
+    if (!realPads) {
+      realPads = navigator.getGamepads;
+      navigator.getGamepads = function () { return padFilter(realPads.apply(navigator, arguments)); };
+    }
+    try {   /* what is held right now passes through */
+      var pads = realPads.call(navigator) || [];
+      for (var k = 0; k < pads.length; k++) {
+        var p = pads[k];
+        if (p && p.buttons) for (var j = 0; j < p.buttons.length; j++) {
+          if (down(p.buttons[j]) && !padHeld[p.index + ':' + j]) padHeld[p.index + ':' + j] = 1;
+        }
+      }
+    } catch (e) {}
+    (function poll() {
+      if (!panel) return;
+      try { navigator.getGamepads(); } catch (e) {}
+      requestAnimationFrame(poll);
+    })();
+  }
+  function stop(e) { e.stopPropagation(); }
+  function diag(f) {
+    if (gone || !document.body) return;
+    if (!panel) {
+      if (!autoDiag(f, f.shortMs)) return;
+      dvh = document.createElement('div');
+      dvh.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;height:100dvh;visibility:hidden;pointer-events:none';
+      document.body.appendChild(dvh);
+      panel = document.createElement('div'); panel.id = 'epd-viewdiag';
+      ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach(function (t) {
+        panel.addEventListener(t, stop);
+      });
+      panel.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); hideDiag('tap'); });
+      document.body.appendChild(panel);
+      diagState.shown = true; diagState.hidden = '';
+      diagState.by = /[?&]viewdiag=1(&|$)/.test(location.search) ? 'query' : 'short';
+      padHook();
+    }
+    var i = f.inputs, vv = window.visualViewport, de = document.documentElement;
+    var n = function (v) { return Math.round((+v || 0) * 10) / 10; };
+    var text = [
+      'Screen check: black band? Screenshot this, then tap to hide.',
+      'screen ' + screen.width + 'x' + screen.height + '  dpr ' + n(window.devicePixelRatio || 1),
+      'inner ' + window.innerWidth + 'x' + window.innerHeight +
+        '  vv ' + (vv ? n(vv.width) + 'x' + n(vv.height) + ' @' + n(vv.offsetTop) : '-'),
+      '100lvh ' + n(i.lvh) + (i.forcedLvh ? ' (forced)' : '') + '  100dvh ' + n(parseFloat(getComputedStyle(dvh).height)),
+      'env t r b l ' + i.env.map(n).join(' ') + (i.forced ? ' (forced)' : ''),
+      'canvas ' + f.left + ',' + f.top + ' ' + f.width + 'x' + f.height + '  insets ' + f.insets.join(' '),
+      'standalone ' + f.standalone + '  scrollY ' + n(window.scrollY) + '  page h ' + (de ? de.scrollHeight : 0),
+      'fix ' + (f.fix || '-') + '  (' + diagState.by + ')'
+    ].join('\n');
+    if (panel.textContent !== text) panel.textContent = text;
+    /* inside the safe area: at its left edge, below the status pane and above the hero (who stands at the
+       screen's middle), clear of the HUD's corners and its bottom rows */
+    var s = f.safe, dn = Math.max(90, (s[3] - s[1]) * 0.2);
+    var pos = (s[0] + 6) + 'px,' + Math.round(s[1] + dn) + 'px,' + Math.max(80, s[2] - s[0] - 12) + 'px';
+    if (panel.__pos !== pos) {
+      panel.__pos = pos;
+      var q = pos.split(',');
+      panel.style.left = q[0]; panel.style.top = q[1]; panel.style.maxWidth = q[2];
+    }
+  }
+  var last = '', loadedAt = 0, shortSince = 0;
   function layout() {
     var c = document.getElementById('canvas');
     if (!c) return;
@@ -261,11 +353,14 @@
     if (c.height !== H) c.height = H;
     var crisp = Math.abs((window.devicePixelRatio || 1) - Math.round(window.devicePixelRatio || 1)) < 0.01;
     c.classList.toggle('epd-crisp', crisp);
+    /* how long the Home Screen app's frame has read short since load (the view diagnostic's settle time) */
+    var now = Date.now();
+    shortSince = loadedAt && inp.standalone && (' ' + m.fix + ' ').indexOf(' short ') >= 0 ? (shortSince || now) : 0;
     window.__epdFrame = { left: L, top: T, width: W, height: H, insets: ins,
                           safe: [L + ins[3], T + ins[0], L + W - ins[1], T + H - ins[2]], vw: m.vw, vh: m.vh,
                           innerW: window.innerWidth, innerH: window.innerHeight, standalone: inp.standalone, fix: m.fix,
-                          inputs: inp };
-    if (diag) diag(window.__epdFrame);
+                          shortMs: shortSince ? now - shortSince : 0, inputs: inp };
+    diag(window.__epdFrame);
   }
   window.__epdLayout = layout;
   function burst() {
@@ -288,7 +383,7 @@
   }
   if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', burst);
   if (window.matchMedia) { try { matchMedia('(orientation: portrait)').addEventListener('change', burst); } catch (e) {} }
-  window.addEventListener('load', function () { burst(); setInterval(layout, 500); });
+  window.addEventListener('load', function () { loadedAt = Date.now(); burst(); setInterval(layout, 500); });
   /* no pinch/double-tap zoom or page bounce */
   document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
   document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
