@@ -43,6 +43,16 @@
   }
   body { display: block !important; }
   body > div { position: static; }
+  /* Home Screen app, WebKit bug 301108 (iOS 26, black-translucent + viewport-fit=cover): while the page is
+     shorter than the screen, the layout viewport (innerHeight, 100dvh, fixed bottom:0) is short by the top
+     safe-area inset and WebKit paints nothing below that edge. A page as tall as the screen gets the full
+     viewport; min() with 100lvh (the full screen on iOS 26, WebKit 316008) stops it from ever scrolling once
+     the viewport is full or the top inset is 0. html is in flow here (not position:fixed), so its height is the
+     page's height; body stays fixed. (html.epd-standalone: the script's own Home Screen test, same rule.) */
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    html { position: static; min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
+  }
+  html.epd-standalone { position: static; min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
   /* The canvas is placed by script (left/top/width/height px) over the whole visible screen (full-bleed,
      M3-42); the game keeps its UI inside the safe area (window.__epdFrame.insets).
      It must stay position:fixed: gdx-teavm's touch math only adds the canvas' own offsetTop/Left. */
@@ -56,6 +66,14 @@
     height: 100vh; height: 100lvh;
     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
              env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  /* ?viewdiag=1 (M3-45): the frame's measurements as text, for an on-device screenshot; the script places it
+     inside the safe area at its left edge, under the status pane (clear of the HUD's corners and bottom rows) */
+  #epd-viewdiag {
+    position: fixed; z-index: 40; left: 6px; top: 36%; margin: 0; padding: 6px 8px; box-sizing: border-box;
+    white-space: pre; overflow: hidden; font: 11px/1.35 Menlo, 'Courier New', monospace; color: #b8f0b0;
+    background: rgba(0, 0, 0, 0.74); border: 1px solid #4a6a44; cursor: pointer; touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
   }
   /* Backup overlay (docs/arch/10-m1-design.md §9): browsers start a download, the share sheet or a file
      picker only from a real tap/click/key press, so export and import show these HTML buttons over the
@@ -93,53 +111,55 @@
   #epd-ov-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 </style>
 <script>
-/* ---- canvas placement: full-bleed; the UI stays inside the iOS safe area (M3-42) -------------------
-   The canvas covers the whole visible screen, so the game draws under the status bar, the Dynamic Island
-   and the home indicator (viewport-fit=cover) and nothing is letterboxed. The safe-area insets go to the
-   game instead: window.__epdFrame.insets [top, right, bottom, left] in canvas px (= CSS px), read by
-   WebPlatformSupport.getSafeInsets, keep the HUD, every window and every other control inside them.
+/* ---- canvas placement: full-bleed; the UI stays inside the iOS safe area (M3-42, M3-45) ------------
+   The canvas covers the whole area the page is painted on, so the game draws under the status bar, the
+   Dynamic Island and the home indicator (viewport-fit=cover) and nothing is letterboxed. The safe-area
+   insets go to the game instead: window.__epdFrame.insets [top, right, bottom, left] in canvas px (= CSS px),
+   read by WebPlatformSupport.getSafeInsets, keep the HUD, every window and every other control inside them.
    WebLauncher uses width/height -1, so gdx-teavm never sizes the canvas; this script does, and the game
    picks the new backbuffer size up on its next frame (Game.resize -> scene reset/relayout, like desktop).
    Backbuffer = CSS px (1:1, no stretching), upscaled with nearest-neighbour on integer-DPR screens.
    Re-run live on resize / visualViewport resize and scroll / orientationchange / screen.orientation change /
    ResizeObserver and a 500 ms poll, so a foldable switching screens (iPhone Duo outer <-> inner) without a
    reload, and Safari's toolbars collapsing or expanding, are picked up.
-   Size rules (the whole visible area, never more):
+   Size rules (the area WebKit paints, never more):
    - Browser tab: the visual viewport (min(innerHeight, visualViewport.height), at its offset): Safari's
      toolbars can overlap the layout viewport.
-   - Home Screen app (standalone, black-translucent + viewport-fit=cover): the whole screen. iOS can report
-     innerHeight/100dvh short (by the status bar, or by the status bar and the home indicator: the owner's
-     iPhone Duo, M3-42) while drawing the page from the very top of the screen. The full height is the
-     largest of 100lvh, the screen size (only when the screen object describes this display: its short or
-     long side matches the current width; a foldable can keep reporting the display it was launched on),
-     outerHeight (when outerWidth matches) and the screen height last seen for this display (localStorage
-     'epd-screen-h', keyed by orientation and width: recorded whenever the screen object did describe it,
-     so a fold to a display the screen object no longer describes still knows its height), as long as the
-     shortfall is status-bar sized (at most MAX_GAP_FRAC of the height); never taller than the screen
-     when the screen object describes this display.
-     A corrected height means iOS measured the insets against the short viewport: the bottom gets at least
-     the home indicator's inset (34 portrait, 21 landscape), and if iOS reported no inset at all the gap is
-     taken as the top inset (portrait), so the HUD stays clear of the status bar and the Dynamic Island.
+   - Home Screen app (standalone, black-translucent + viewport-fit=cover): the layout viewport, innerWidth x
+     innerHeight at 0,0, with the env(safe-area-inset-*) insets. WebKit bug 301108 (iOS 26): while the page
+     is shorter than the screen, the layout viewport (innerHeight, 100dvh, position:fixed bottom:0) is short
+     by the top safe-area inset although the page is drawn from the top of the screen, and WebKit paints
+     nothing below that short edge (the owner's iPhone Duo inner screen: innerHeight 814 of 890, a 76-px
+     black band). The standalone CSS rule above (html min-height: the screen's height, capped by 100lvh)
+     makes the page as tall as the screen, so iOS gives the full viewport and innerHeight is the screen's
+     height. M3-42 instead stretched the canvas past innerHeight (to 100lvh / the screen / outerHeight, with
+     guessed status-bar and home-indicator insets): the game laid its bottom HUD out in the band WebKit never
+     paints. Now, if the CSS rule ever fails on a device, the result is a black band with the WHOLE HUD
+     visible above it, never a clipped HUD; __epdFrame.fix then reads 'standalone short <n>' (100lvh minus
+     innerHeight, CSS px).
    The insets the game gets are the safe area's overlap with the canvas (a tab's canvas can start below
-   the layout viewport's top).
+   the layout viewport's top). The page never scrolls (touchmove is prevented; layout() puts scrollY back).
+   ?viewdiag=1 shows the measurements live in a small text panel (for an on-device screenshot; tap hides it).
    Test hooks: ?epdInsets=top,right,bottom,left or window.__epdForceInsets = [t,r,b,l] override
    env(safe-area-inset-*); window.__epdForceStandalone = true fakes Home Screen mode;
    window.__epdComputeFrame(inputs) is the pure placement function (tools/web/phonefit.js checks it). */
 (function () {
   var q = /[?&]epdInsets=([\d.,]+)/.exec(location.search);
   if (q) window.__epdForceInsets = q[1].split(',').map(Number);
-  var MAX_GAP_FRAC = 0.25, HOME_P = 34, HOME_L = 21;
   function standalone() {
     if (window.__epdForceStandalone !== undefined) return !!window.__epdForceStandalone;
     return navigator.standalone === true ||
       (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches));
   }
+  /* the standalone CSS rule also by this test (navigator.standalone, the test hook), before the first layout */
+  document.documentElement.classList.toggle('epd-standalone', !!standalone());
+  try { localStorage.removeItem('epd-screen-h'); } catch (e) {}   /* M3-42's screen-height memo, retired */
   /* pure: inputs -> {vw, vh, t, r, b, l, ox, oy, fix}: the canvas (ox, oy, vw x vh in page CSS px) and the
      safe-area insets measured from its edges */
   function computeFrame(i) {
     var env = (i.env || [0, 0, 0, 0]).map(function (v) { return Math.max(0, v || 0); });
     var t = env[0], r = env[1], b = env[2], l = env[3];
-    var vw = i.innerW, vh = i.innerH, ox = 0, oy = 0, fix = '', seen = 0;
+    var vw = i.innerW, vh = i.innerH, ox = 0, oy = 0, fix = '';
     var layoutW = vw, layoutH = vh;
     if (i.clientW > 0 && Math.abs(i.clientW - vw) < 2) vw = layoutW = i.clientW;
     if (!i.standalone) {
@@ -149,50 +169,16 @@
         if (vv.w < vw - 0.5) { vw = vv.w; ox = Math.max(0, vv.ol || 0); fix += (fix ? '+' : '') + 'vv-w'; }
       }
     } else {
-      var landscape = vw > vh;
-      var cap = vh * MAX_GAP_FRAC;
-      var full = vh, src = '';
-      var take = function (h, name) {
-        if (h > full + 0.5 && h - vh <= cap) { full = h; src = name; }
-      };
-      take(i.lvh || 0, 'lvh');
-      var sMin = Math.min(i.screenW || 0, i.screenH || 0), sMax = Math.max(i.screenW || 0, i.screenH || 0);
-      var sW = landscape ? sMax : sMin, sH = landscape ? sMin : sMax;
-      var screenOk = sW > 0 && Math.abs(sW - vw) <= 2;          /* screen object describes THIS display */
-      if (screenOk) take(sH, 'screen');
-      if (i.outerW > 0 && Math.abs(i.outerW - vw) <= 2) take(i.outerH || 0, 'outer');
-      if (!screenOk) take(i.memo || 0, 'memo');
-      if (screenOk && full > sH) full = sH;                     /* never taller than the screen */
-      if (screenOk) seen = sH;
-      if (full > vh + 0.5) {
-        var gap = full - vh;
-        fix = 'standalone-gap ' + Math.round(gap) + ' (' + src + ')';
-        vh = layoutH = full;
-        if (!i.forced) {
-          if (t === 0 && r === 0 && b === 0 && l === 0 && !landscape) t = gap;  /* the status bar, unreported */
-          b = Math.max(b, landscape ? HOME_L : HOME_P);                          /* the home indicator */
-          fix += ' +insets';
-        }
-      }
+      /* the layout viewport and never more: WebKit paints nothing below it (WebKit 301108) */
+      fix = 'standalone';
+      if ((i.lvh || 0) > vh + 0.5) fix += ' short ' + Math.round(i.lvh - vh);
     }
     /* the safe area's overlap with the canvas */
     t = Math.max(0, t - oy);
     l = Math.max(0, l - ox);
     b = Math.max(0, b - Math.max(0, layoutH - (oy + vh)));
     r = Math.max(0, r - Math.max(0, layoutW - (ox + vw)));
-    return { vw: vw, vh: vh, t: t, r: r, b: b, l: l, ox: ox, oy: oy, fix: fix, seen: seen };
-  }
-  /* the screen heights seen per display ('p626': portrait, 626 CSS px wide) */
-  var MEMO = 'epd-screen-h', memo = null;
-  function memoKey(w, h) { return (w > h ? 'l' : 'p') + Math.round(w); }
-  function memoGet(k) {
-    if (memo === null) { try { memo = JSON.parse(localStorage.getItem(MEMO) || '{}') || {}; } catch (e) { memo = {}; } }
-    return +memo[k] || 0;
-  }
-  function memoSet(k, v) {
-    if (memoGet(k) === v) return;
-    memo[k] = v;
-    try { localStorage.setItem(MEMO, JSON.stringify(memo)); } catch (e) {}
+    return { vw: vw, vh: vh, t: t, r: r, b: b, l: l, ox: ox, oy: oy, fix: fix };
   }
   window.__epdComputeFrame = computeFrame;
   var probe;
@@ -207,10 +193,49 @@
       innerW: window.innerWidth, innerH: window.innerHeight, clientW: de ? de.clientWidth : 0,
       vv: vv ? { w: vv.width, h: vv.height, ot: vv.offsetTop, ol: vv.offsetLeft, scale: vv.scale } : null,
       lvh: parseFloat(cs.height) || 0, screenW: screen.width, screenH: screen.height,
-      outerW: window.outerWidth || 0, outerH: window.outerHeight || 0,
       env: forced || [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map(parseFloat),
-      forced: !!forced, standalone: !!standalone(),
-      memo: memoGet(memoKey(window.innerWidth, window.innerHeight))
+      forced: !!forced, standalone: !!standalone()
+    };
+  }
+  /* ?viewdiag=1: the measurements, live, in a small HTML panel inside the safe area (tap to hide) */
+  var diag = null;
+  if (/[?&]viewdiag=1(&|$)/.test(location.search)) {
+    var panel = null, dvh = null, gone = false;
+    diag = function (f) {
+      if (gone || !document.body) return;
+      if (!panel) {
+        dvh = document.createElement('div');
+        dvh.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;height:100dvh;visibility:hidden;pointer-events:none';
+        document.body.appendChild(dvh);
+        panel = document.createElement('div'); panel.id = 'epd-viewdiag';
+        panel.addEventListener('click', function (e) {
+          e.preventDefault(); e.stopPropagation(); gone = true; panel.remove(); dvh.remove();
+        });
+        document.body.appendChild(panel);
+      }
+      var i = f.inputs, vv = window.visualViewport, de = document.documentElement;
+      var n = function (v) { return Math.round((+v || 0) * 10) / 10; };
+      var text = [
+        'viewdiag (tap to hide)',
+        'screen ' + screen.width + 'x' + screen.height + '  dpr ' + n(window.devicePixelRatio || 1),
+        'inner ' + window.innerWidth + 'x' + window.innerHeight +
+          '  vv ' + (vv ? n(vv.width) + 'x' + n(vv.height) + ' @' + n(vv.offsetTop) : '-'),
+        '100lvh ' + n(i.lvh) + '  100dvh ' + n(parseFloat(getComputedStyle(dvh).height)),
+        'env t r b l ' + i.env.map(n).join(' ') + (i.forced ? ' (forced)' : ''),
+        'canvas ' + f.left + ',' + f.top + ' ' + f.width + 'x' + f.height + '  insets ' + f.insets.join(' '),
+        'standalone ' + f.standalone + '  scrollY ' + n(window.scrollY) + '  page h ' + (de ? de.scrollHeight : 0),
+        'fix ' + (f.fix || '-')
+      ].join('\n');
+      if (panel.textContent !== text) panel.textContent = text;
+      /* inside the safe area: at its left edge, below the status pane and above the hero (who stands at the
+         screen's middle), clear of the HUD's corners and its bottom rows */
+      var s = f.safe, down = Math.max(90, (s[3] - s[1]) * 0.2);
+      var pos = (s[0] + 6) + 'px,' + Math.round(s[1] + down) + 'px,' + Math.max(80, s[2] - s[0] - 12) + 'px';
+      if (panel.__pos !== pos) {
+        panel.__pos = pos;
+        var p = pos.split(',');
+        panel.style.left = p[0]; panel.style.top = p[1]; panel.style.maxWidth = p[2];
+      }
     };
   }
   var last = '';
@@ -218,7 +243,9 @@
     var c = document.getElementById('canvas');
     if (!c) return;
     var inp = inputs(), m = computeFrame(inp);
-    if (m.seen > 0) memoSet(memoKey(inp.innerW, inp.innerH), Math.round(m.seen));
+    document.documentElement.classList.toggle('epd-standalone', inp.standalone);
+    /* the page never scrolls (the standalone CSS rule makes it a screen tall while the viewport is short) */
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
     var L = Math.round(m.ox), T = Math.round(m.oy);
     var W = Math.max(1, Math.floor(m.vw)), H = Math.max(1, Math.floor(m.vh));
     /* insets in canvas px, whole px, and never more than half the canvas each way */
@@ -238,6 +265,7 @@
                           safe: [L + ins[3], T + ins[0], L + W - ins[1], T + H - ins[2]], vw: m.vw, vh: m.vh,
                           innerW: window.innerWidth, innerH: window.innerHeight, standalone: inp.standalone, fix: m.fix,
                           inputs: inp };
+    if (diag) diag(window.__epdFrame);
   }
   window.__epdLayout = layout;
   function burst() {
