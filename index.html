@@ -323,7 +323,8 @@
     /* inside the safe area: at its left edge, below the status pane and above the hero (who stands at the
        screen's middle), clear of the HUD's corners and its bottom rows */
     var s = f.safe, dn = Math.max(90, (s[3] - s[1]) * 0.2);
-    var pos = (s[0] + 6) + 'px,' + Math.round(s[1] + dn) + 'px,' + Math.max(80, s[2] - s[0] - 12) + 'px';
+    /* U1-03: at most 62% of the safe width, so it stays left of the right column (the eye row under the minimap) */
+    var pos = (s[0] + 6) + 'px,' + Math.round(s[1] + dn) + 'px,' + Math.max(80, Math.round((s[2] - s[0]) * 0.62) - 6) + 'px';
     if (panel.__pos !== pos) {
       panel.__pos = pos;
       var q = pos.split(',');

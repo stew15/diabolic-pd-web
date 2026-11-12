@@ -64,12 +64,14 @@ i:b:/interfaces/status_pane.png:1101:1
 i:b:/interfaces/icons.png:20684:1
 i:b:/interfaces/banners.png:22794:1
 i:b:/interfaces/buffs.png:1879:1
+i:b:/interfaces/hud_strip.png:302:1
 i:b:/interfaces/chrome.png:1186:1
 i:b:/interfaces/toolbar.png:1792:1
 i:b:/interfaces/locked_badge.png:146:1
 i:b:/interfaces/badges.png:6273:1
 i:b:/interfaces/talent_button.png:324:1
 i:b:/interfaces/surface.png:1599:1
+i:b:/interfaces/skills_marks.png:362:1
 i:b:/interfaces/hero_icons.png:3925:1
 i:b:/interfaces/menu_pane.png:247:1
 i:b:/interfaces/menu_button.png:406:1
@@ -289,10 +291,10 @@ i:b:/messages/journal/journal_zh-hant.properties:35153:1
 i:b:/messages/journal/journal_cs.properties:40152:1
 i:b:/messages/journal/journal_el.properties:67476:1
 i:b:/messages/journal/journal_sv.properties:40354:1
-i:b:/messages/progression/skills.properties:3898:1
+i:b:/messages/progression/skills.properties:3918:1
 i:b:/messages/progression/conversion.properties:1061:1
 i:b:/messages/progression/aim.properties:761:1
-i:b:/messages/progression/respec.properties:2779:1
+i:b:/messages/progression/respec.properties:2838:1
 i:b:/messages/progression/hud.properties:1816:1
 i:b:/messages/progression/character.properties:3068:1
 i:b:/messages/world/town.properties:3183:1
@@ -394,7 +396,7 @@ i:b:/messages/plants/plants_uk.properties:10090:1
 i:b:/messages/plants/plants_es.properties:6924:1
 i:b:/messages/plants/plants_hu.properties:6664:1
 i:b:/messages/plants/plants_tr.properties:6772:1
-i:b:/messages/windows/windows.properties:25362:1
+i:b:/messages/windows/windows.properties:25725:1
 i:b:/messages/windows/windows_hu.properties:28504:1
 i:b:/messages/windows/windows_de.properties:28982:1
 i:b:/messages/windows/windows_it.properties:27282:1
