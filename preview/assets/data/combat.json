@@ -1,0 +1,14 @@
+{
+  "hpScale": 2.5,
+  "dmgScale": [[1, 6.0], [4, 5.6], [8, 5.3], [9, 3.0], [20, 2.9], [30, 2.7]],
+  "armour": {"perLevel": 40, "flat": 60, "cap": 0.75},
+  "resistCap": {"base": 0.75, "max": 0.85},
+  "reductionFloor": 0.5,
+  "holyVsUnholy": 1.5,
+  "monsterResists": [
+    {"property": "FIERY", "element": "fire", "pct": 40},
+    {"property": "ICY", "element": "frost", "pct": 40},
+    {"property": "INORGANIC", "element": "blight", "pct": 40},
+    {"property": "UNDEAD", "element": "blight", "pct": 25}
+  ]
+}

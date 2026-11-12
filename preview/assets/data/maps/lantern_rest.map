@@ -1,0 +1,86 @@
+# Lantern's Rest - Act I town (location 100, TownLevel; docs/arch/10-m1-design.md section 3.1)
+#
+# A fortified coaching inn: a stone curtain wall around a cobbled yard. The inn (west) holds Maud and
+# the strongbox, the chapel (north-east) Sister Odile, Brother Cael and the Confessor, the smithy and
+# stables (east) Garrick. The north gate opens onto the Old Coach Road. The Hearth Lantern stands in
+# the middle of the yard and everyone arrives beside it. Row 0 is solid wall (the border row is always
+# impassable), so the gate sits on row 1.
+#
+# The way out (M2-28): each gatepost statue ('s' right beside each end of the gate rect) bears a lit
+# brazier that TownLevel draws over the wall, and the exit label "Old Coach Road" hangs over the gate
+# between them. Keep the statues there and the three G cells between them; the braziers are visuals
+# (no actor, no marker), so the G8 lane rule below is untouched.
+#
+# G8 lanes (asserted by MapSourceTest and TownTest): (16..19,11) free floor, (20,11) wall, x=19 for
+# y=12..22 free floor or water, and no NPC or object within one cell of (19,11) and (19,12..22).
+#
+# Format: world/MapSource (section 3.4). Comments start with '#' at column 0; legend lines are indented.
+
+kind town
+size 29 24
+scale 1
+seed 0
+
+legend
+  # WALL
+  . EMPTY
+  = EMPTY_SP
+  , GRASS
+  % FURROWED_GRASS                 # herb beds
+  T EMPTY_DECO                     # tables and pews
+  b BOOKSHELF                      # shelves
+  v BOOKSHELF                      # smithy tool racks
+  B BARRICADE                      # hay bales
+  s STATUE                         # gateposts (each bears a lit brazier)
+  p PEDESTAL                       # altar dais
+  e EMBERS                         # hearths and forge
+  o EMPTY_WELL                     # the yard well
+  ~ WATER                          # horse trough
+  + DOOR
+  G EMPTY_SP @gate                 # the gate to the overworld (REGULAR_EXIT -> 101)
+  @ EMPTY @arrival                 # where everyone arrives (new character, respawn, renewed session)
+  Q EMPTY @portal_arrival          # Lantern of Return arrivals
+  P EMPTY @portal_flame            # the town return flame
+  L EMPTY @lantern:act1.hearth     # the Hearth Lantern (always lit)
+  S EMPTY_SP @strongbox            # Maud's strongbox (the shared stash)
+  M EMPTY_SP @npc:maud             # Maud, innkeeper
+  O EMPTY_SP @npc:odile            # Sister Odile, healer
+  A EMPTY_SP @npc:garrick          # Garrick Thane, smith
+  w EMPTY @npc:wenna               # Wenna, apothecary (herb garden)
+  r EMPTY @npc:ragpicker           # the Rag-Picker
+  c EMPTY_SP @npc:cael             # Brother Cael, the cold altar
+  f EMPTY_SP @npc:confessor        # the Confessor
+  h EMPTY @npc:hobb                # Sexton Hobb
+end
+
+grid
+#############################
+#############sGGGs###########
+#%%%,,%%%%#.........#b=ppp=b#
+#%%%,,%%%%#.h..=....#===c===#
+#,,,,,,,,,#....=....#=O=====#
+#%%%,w,%%%+....=....+=TT=TT=#
+#%%%,,,%%%#....=....#=TT=TT=#
+#,,,,,,,,,#....=....#======f#
+###########....=....#########
+#bbbb==bbb#....=....#ee===bb#
+#=========#...PL....#ee=====#
+#=TT===TT=#...Q@....#==A====#
+#=TT===TT=#.o...............#
+#========S#.................#
+#=======M=+.......,.........#
+#=TT======#.......,.#=vvvvv=#
+#=TT===TT=#..,,.....#=======#
+#======TT=#..,,...~~#BB,,,BB#
+#ee=======#.......~~#,,,,,,,#
+#ee===bbbb#.........#BB,,,BB#
+#=========#.........#,,,,,,,#
+#=========#.r.......#BB,,,BB#
+###########.........#########
+#############################
+end
+
+markers
+  gate 14 1 16 1                   # the 3-cell gate rect (must match the G cells)
+  gate_arrival 15 2                # VIA_LINK arrival from the overworld, one tile inside the gate
+end

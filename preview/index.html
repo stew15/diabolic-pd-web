@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Diabolic Pixel Dungeon (preview)</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #000;
+                height: 100vh;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+            #canvas {
+                border: none;
+            }
+        </style>
+    <script>(function(){var g=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(t,o){var c=g.call(this,t,o);if(c&&(t==='webgl'||t==='experimental-webgl')&&c.getExtension){try{c.getExtension('OES_standard_derivatives');}catch(e){}}return c;};})();</script>
+<!-- EPD-PWA:BEGIN -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Diabolic PD">
+<meta name="application-name" content="Diabolic PD">
+<meta name="theme-color" content="#000000">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="icons-pwa/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons-pwa/icon-192.png">
+<style>
+  html, body {
+    position: fixed; inset: 0; margin: 0; padding: 0;
+    width: 100%; height: 100%;
+    overflow: hidden; background: #000;
+    overscroll-behavior: none; touch-action: none;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+  body { display: block !important; }
+  body > div { position: static; }
+  /* Home Screen app, WebKit bug 301108 (iOS 26, black-translucent + viewport-fit=cover): while the page is
+     shorter than the screen, the layout viewport (innerHeight, 100dvh, fixed bottom:0) is short by the top
+     safe-area inset and WebKit paints nothing below that edge. A page as tall as the screen gets the full
+     viewport; min() with 100lvh (the full screen on iOS 26, WebKit 316008) stops it from ever scrolling once
+     the viewport is full or the top inset is 0. html is in flow here (not position:fixed), so its height is the
+     page's height; body stays fixed. (html.epd-standalone: the script's own Home Screen test, same rule.) */
+  @media (display-mode: standalone), (display-mode: fullscreen) {
+    html { position: static; min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
+  }
+  html.epd-standalone { position: static; min-height: min(100lvh, calc(100% + env(safe-area-inset-top))); }
+  /* The canvas is placed by script (left/top/width/height px) over the whole visible screen (full-bleed,
+     M3-42); the game keeps its UI inside the safe area (window.__epdFrame.insets).
+     It must stay position:fixed: gdx-teavm's touch math only adds the canvas' own offsetTop/Left. */
+  #canvas {
+    position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; display: block;
+    border: none; outline: none; touch-action: none; background: #000;
+  }
+  #canvas.epd-crisp { image-rendering: pixelated; image-rendering: crisp-edges; }
+  #epd-probe {
+    position: fixed; left: 0; top: 0; width: 0; visibility: hidden; pointer-events: none;
+    height: 100vh; height: 100lvh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+  /* the view diagnostic (M3-45, M3-47: ?viewdiag=1, or by itself in a Home Screen app whose viewport stays
+     short): the frame's measurements as text, for an on-device screenshot; the script places it inside the safe
+     area at its left edge, under the status pane (clear of the HUD's corners and bottom rows) */
+  #epd-viewdiag {
+    position: fixed; z-index: 40; left: 6px; top: 36%; margin: 0; padding: 6px 8px; box-sizing: border-box;
+    white-space: pre-wrap; overflow: hidden; font: 11px/1.35 Menlo, 'Courier New', monospace; color: #b8f0b0;
+    background: rgba(0, 0, 0, 0.74); border: 1px solid #4a6a44; cursor: pointer; touch-action: manipulation;
+    -webkit-user-select: none; user-select: none;
+  }
+  /* Backup overlay (docs/arch/10-m1-design.md §9): browsers start a download, the share sheet or a file
+     picker only from a real tap/click/key press, so export and import show these HTML buttons over the
+     canvas. Markup at the end of <body>; WebPlatformSupport.jsShowOverlay sets the labels and handlers. */
+  @font-face { font-family: 'EPD Pixel'; src: url('assets/fonts/pixel_font.ttf'); font-display: swap; }
+  #epd-overlay {
+    position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+    padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+             max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    box-sizing: border-box; background: rgba(4, 2, 2, 0.62); touch-action: manipulation;
+    font: 16px/1.35 'EPD Pixel', 'Courier New', monospace; color: #d8ccb0;
+  }
+  #epd-overlay[hidden], #epd-overlay [hidden] { display: none !important; }
+  #epd-overlay .epd-ov-box {
+    box-sizing: border-box; width: min(100%, 440px); padding: 18px 18px 14px; text-align: center;
+    background: #17110e; border: 2px solid #6e5437; outline: 2px solid #0a0706;
+    box-shadow: 0 0 0 4px #2b1f16, 0 8px 32px rgba(0, 0, 0, 0.8);
+  }
+  #epd-overlay p { margin: 0 0 14px; overflow-wrap: anywhere; }
+  #epd-ov-name { color: #a89c84; font-size: 14px; }
+  #epd-ov-pad { margin: 12px 0 0; color: #e3b45c; }
+  #epd-overlay .epd-ov-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  #epd-overlay button {
+    flex: 1 1 150px; min-height: 44px; padding: 8px 14px; cursor: pointer;
+    font: inherit; color: #eadfc4; background: #33261b; border: 2px solid #6e5437; border-radius: 0;
+    -webkit-appearance: none; appearance: none; touch-action: manipulation;
+  }
+  #epd-overlay button.epd-ov-go { background: #5b2119; border-color: #a0543a; color: #fff1d6; }
+  #epd-overlay button:hover { filter: brightness(1.18); }
+  #epd-overlay button:active { filter: brightness(0.9); }
+  #epd-overlay button:focus { outline: none; }
+  #epd-overlay button:focus-visible, #epd-overlay button:focus {
+    box-shadow: 0 0 0 2px #17110e, 0 0 0 4px #e3b45c;
+  }
+  #epd-ov-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+</style>
+<script>
+/* ---- canvas placement: full-bleed; the UI stays inside the iOS safe area (M3-42, M3-45) ------------
+   The canvas covers the whole area the page is painted on, so the game draws under the status bar, the
+   Dynamic Island and the home indicator (viewport-fit=cover) and nothing is letterboxed. The safe-area
+   insets go to the game instead: window.__epdFrame.insets [top, right, bottom, left] in canvas px (= CSS px),
+   read by WebPlatformSupport.getSafeInsets, keep the HUD, every window and every other control inside them.
+   WebLauncher uses width/height -1, so gdx-teavm never sizes the canvas; this script does, and the game
+   picks the new backbuffer size up on its next frame (Game.resize -> scene reset/relayout, like desktop).
+   Backbuffer = CSS px (1:1, no stretching), upscaled with nearest-neighbour on integer-DPR screens.
+   Re-run live on resize / visualViewport resize and scroll / orientationchange / screen.orientation change /
+   ResizeObserver and a 500 ms poll, so a foldable switching screens (iPhone Duo outer <-> inner) without a
+   reload, and Safari's toolbars collapsing or expanding, are picked up.
+   Size rules (the area WebKit paints, never more):
+   - Browser tab: the visual viewport (min(innerHeight, visualViewport.height), at its offset): Safari's
+     toolbars can overlap the layout viewport.
+   - Home Screen app (standalone, black-translucent + viewport-fit=cover): the layout viewport, innerWidth x
+     innerHeight at 0,0, with the env(safe-area-inset-*) insets. WebKit bug 301108 (iOS 26): while the page
+     is shorter than the screen, the layout viewport (innerHeight, 100dvh, position:fixed bottom:0) is short
+     by the top safe-area inset although the page is drawn from the top of the screen, and WebKit paints
+     nothing below that short edge (the owner's iPhone Duo inner screen: innerHeight 814 of 890, a 76-px
+     black band). The standalone CSS rule above (html min-height: the screen's height, capped by 100lvh)
+     makes the page as tall as the screen, so iOS gives the full viewport and innerHeight is the screen's
+     height. M3-42 instead stretched the canvas past innerHeight (to 100lvh / the screen / outerHeight, with
+     guessed status-bar and home-indicator insets): the game laid its bottom HUD out in the band WebKit never
+     paints. Now, if the CSS rule ever fails on a device, the result is a black band with the WHOLE HUD
+     visible above it, never a clipped HUD; __epdFrame.fix then reads 'standalone short <n>' (100lvh minus
+     innerHeight, CSS px).
+   The insets the game gets are the safe area's overlap with the canvas (a tab's canvas can start below
+   the layout viewport's top). The page never scrolls (touchmove is prevented; layout() puts scrollY back).
+   The view diagnostic shows the measurements live in a small text panel (for an on-device screenshot):
+   ?viewdiag=1 shows it anywhere; in the Home Screen app it shows itself, once per launch, when the frame
+   still reads short 2 s after load (M3-47: the manifest's start_url carries no query, and standalone is the
+   one mode WebKit 301108 shows in); ?viewdiag=0 never shows it. A tap or click on it, the first Escape or the
+   first gamepad button hides it, and that input never reaches the game.
+   Test hooks: ?epdInsets=top,right,bottom,left or window.__epdForceInsets = [t,r,b,l] override
+   env(safe-area-inset-*); window.__epdForceStandalone = true fakes Home Screen mode; window.__epdForceLvh = n
+   overrides 100lvh (n above innerHeight forces the short case); window.__epdComputeFrame(inputs) is the pure
+   placement function and window.__epdAutoDiag(frame, shortMs, search) the pure show-the-panel decision
+   (tools/web/phonefit.js checks both); window.__epdDiag {shown, by, hidden, rearm()} the panel's state. */
+(function () {
+  var q = /[?&]epdInsets=([\d.,]+)/.exec(location.search);
+  if (q) window.__epdForceInsets = q[1].split(',').map(Number);
+  function standalone() {
+    if (window.__epdForceStandalone !== undefined) return !!window.__epdForceStandalone;
+    return navigator.standalone === true ||
+      (window.matchMedia && (matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches));
+  }
+  /* the standalone CSS rule also by this test (navigator.standalone, the test hook), before the first layout */
+  document.documentElement.classList.toggle('epd-standalone', !!standalone());
+  try { localStorage.removeItem('epd-screen-h'); } catch (e) {}   /* M3-42's screen-height memo, retired */
+  /* pure: inputs -> {vw, vh, t, r, b, l, ox, oy, fix}: the canvas (ox, oy, vw x vh in page CSS px) and the
+     safe-area insets measured from its edges */
+  function computeFrame(i) {
+    var env = (i.env || [0, 0, 0, 0]).map(function (v) { return Math.max(0, v || 0); });
+    var t = env[0], r = env[1], b = env[2], l = env[3];
+    var vw = i.innerW, vh = i.innerH, ox = 0, oy = 0, fix = '';
+    var layoutW = vw, layoutH = vh;
+    if (i.clientW > 0 && Math.abs(i.clientW - vw) < 2) vw = layoutW = i.clientW;
+    if (!i.standalone) {
+      var vv = i.vv;
+      if (vv && vv.w > 0 && vv.h > 0 && Math.abs((vv.scale || 1) - 1) < 0.01) {
+        if (vv.h < vh - 0.5) { vh = vv.h; oy = Math.max(0, vv.ot || 0); fix = 'vv-h'; }
+        if (vv.w < vw - 0.5) { vw = vv.w; ox = Math.max(0, vv.ol || 0); fix += (fix ? '+' : '') + 'vv-w'; }
+      }
+    } else {
+      /* the layout viewport and never more: WebKit paints nothing below it (WebKit 301108) */
+      fix = 'standalone';
+      if ((i.lvh || 0) > vh + 0.5) fix += ' short ' + Math.round(i.lvh - vh);
+      /* env() reports no inset at all (on a phone with a status bar: the insets are not reaching the page) */
+      if (!(t || r || b || l)) fix += ' env0';
+    }
+    /* the safe area's overlap with the canvas */
+    t = Math.max(0, t - oy);
+    l = Math.max(0, l - ox);
+    b = Math.max(0, b - Math.max(0, layoutH - (oy + vh)));
+    r = Math.max(0, r - Math.max(0, layoutW - (ox + vw)));
+    return { vw: vw, vh: vh, t: t, r: r, b: b, l: l, ox: ox, oy: oy, fix: fix, standalone: !!i.standalone };
+  }
+  window.__epdComputeFrame = computeFrame;
+  /* pure: whether the view diagnostic shows - ?viewdiag=0 never, ?viewdiag=1 always; otherwise only in the
+     Home Screen app (frame.standalone) while the frame reads short (fix 'standalone short <n>': 100lvh above
+     innerHeight) and has read short for DIAG_SETTLE ms since load (shortMs), past the burst of layouts */
+  var DIAG_SETTLE = 2000;
+  function autoDiag(f, shortMs, search) {
+    var q = search == null ? location.search : String(search);
+    if (/[?&]viewdiag=0(&|$)/.test(q)) return false;
+    if (/[?&]viewdiag=1(&|$)/.test(q)) return true;
+    return !!(f && f.standalone && (' ' + (f.fix || '') + ' ').indexOf(' short ') >= 0 && (+shortMs || 0) >= DIAG_SETTLE);
+  }
+  window.__epdAutoDiag = autoDiag;
+  var probe;
+  function inputs() {
+    if (!probe) {
+      probe = document.createElement('div'); probe.id = 'epd-probe';
+      (document.body || document.documentElement).appendChild(probe);
+    }
+    var cs = getComputedStyle(probe), vv = window.visualViewport, de = document.documentElement;
+    var forced = window.__epdForceInsets, flvh = +window.__epdForceLvh > 0 ? +window.__epdForceLvh : 0;
+    return {
+      innerW: window.innerWidth, innerH: window.innerHeight, clientW: de ? de.clientWidth : 0,
+      vv: vv ? { w: vv.width, h: vv.height, ot: vv.offsetTop, ol: vv.offsetLeft, scale: vv.scale } : null,
+      lvh: flvh || parseFloat(cs.height) || 0, forcedLvh: !!flvh, screenW: screen.width, screenH: screen.height,
+      env: forced || [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map(parseFloat),
+      forced: !!forced, standalone: !!standalone()
+    };
+  }
+  /* the view diagnostic: the measurements, live, in a small HTML panel inside the safe area. It appears when
+     autoDiag says so (?viewdiag=1, or the Home Screen app still short 2 s after load), once per launch. A tap or
+     click on it, the first Escape keydown or the first gamepad button press hides it, and none of them acts in
+     the game: the panel's own press events stop at it, the Escape keydown (and its keyup) stop at a capture
+     listener on window (the game listens on document), and the pad button is masked from the game's
+     navigator.getGamepads() reads until it is released (polled each animation frame while the panel shows,
+     and on every read the game makes) */
+  var panel = null, dvh = null, gone = false, eatEscUp = false;
+  var diagState = window.__epdDiag = { shown: false, by: '', hidden: '',
+    rearm: function () { gone = false; diagState.hidden = ''; } };   /* test hook: may show again */
+  function hideDiag(how) {
+    if (!panel) return;
+    gone = true;
+    panel.remove(); dvh.remove(); panel = dvh = null;
+    diagState.shown = false; diagState.hidden = how;
+  }
+  /* Escape: the first keydown while the panel shows hides it; it and its keyup never reach the game */
+  function diagKeys(e) {
+    if (e.key !== 'Escape' && e.key !== 'Esc') return;
+    if (panel && e.type === 'keydown') { eatEscUp = true; hideDiag('esc'); }
+    else if (eatEscUp && e.type === 'keyup') eatEscUp = false;
+    else return;
+    e.preventDefault(); e.stopImmediatePropagation();
+  }
+  window.addEventListener('keydown', diagKeys, true);
+  window.addEventListener('keyup', diagKeys, true);
+  /* the pad: a button pressed while the panel shows hides it and reads as released to the game until it is
+     let go; a button already held when the panel appeared passes through (installed when the panel first shows) */
+  var realPads = null, padHeld = {}, UP = { pressed: false, touched: false, value: 0 };
+  function down(b) { return !!(b && (b.pressed || b.value >= 0.5)); }
+  function padFilter(pads) {
+    if (!pads) return pads;
+    var out = null, wasShown = !!panel;
+    for (var k = 0; k < pads.length; k++) {
+      var p = pads[k], bs = null;
+      if (!p || !p.buttons) continue;
+      for (var j = 0; j < p.buttons.length; j++) {
+        var id = p.index + ':' + j;
+        if (!down(p.buttons[j])) { delete padHeld[id]; continue; }
+        if (!padHeld[id]) { if (!wasShown) continue; padHeld[id] = 2; hideDiag('pad'); }
+        if (padHeld[id] === 2) { bs = bs || Array.prototype.slice.call(p.buttons); bs[j] = UP; }
+      }
+      if (bs) {
+        out = out || Array.prototype.slice.call(pads);
+        out[k] = { id: p.id, index: p.index, connected: p.connected, mapping: p.mapping, timestamp: p.timestamp,
+                   axes: p.axes, buttons: bs, vibrationActuator: p.vibrationActuator };
+      }
+    }
+    return out || pads;
+  }
+  function padHook() {
+    if (!navigator.getGamepads) return;
+    if (!realPads) {
+      realPads = navigator.getGamepads;
+      navigator.getGamepads = function () { return padFilter(realPads.apply(navigator, arguments)); };
+    }
+    try {   /* what is held right now passes through */
+      var pads = realPads.call(navigator) || [];
+      for (var k = 0; k < pads.length; k++) {
+        var p = pads[k];
+        if (p && p.buttons) for (var j = 0; j < p.buttons.length; j++) {
+          if (down(p.buttons[j]) && !padHeld[p.index + ':' + j]) padHeld[p.index + ':' + j] = 1;
+        }
+      }
+    } catch (e) {}
+    (function poll() {
+      if (!panel) return;
+      try { navigator.getGamepads(); } catch (e) {}
+      requestAnimationFrame(poll);
+    })();
+  }
+  function stop(e) { e.stopPropagation(); }
+  function diag(f) {
+    if (gone || !document.body) return;
+    if (!panel) {
+      if (!autoDiag(f, f.shortMs)) return;
+      dvh = document.createElement('div');
+      dvh.style.cssText = 'position:fixed;left:0;top:0;width:0;height:100vh;height:100dvh;visibility:hidden;pointer-events:none';
+      document.body.appendChild(dvh);
+      panel = document.createElement('div'); panel.id = 'epd-viewdiag';
+      ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach(function (t) {
+        panel.addEventListener(t, stop);
+      });
+      panel.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); hideDiag('tap'); });
+      document.body.appendChild(panel);
+      diagState.shown = true; diagState.hidden = '';
+      diagState.by = /[?&]viewdiag=1(&|$)/.test(location.search) ? 'query' : 'short';
+      padHook();
+    }
+    var i = f.inputs, vv = window.visualViewport, de = document.documentElement;
+    var n = function (v) { return Math.round((+v || 0) * 10) / 10; };
+    var text = [
+      'Screen check: black band? Screenshot this, then tap to hide.',
+      'screen ' + screen.width + 'x' + screen.height + '  dpr ' + n(window.devicePixelRatio || 1),
+      'inner ' + window.innerWidth + 'x' + window.innerHeight +
+        '  vv ' + (vv ? n(vv.width) + 'x' + n(vv.height) + ' @' + n(vv.offsetTop) : '-'),
+      '100lvh ' + n(i.lvh) + (i.forcedLvh ? ' (forced)' : '') + '  100dvh ' + n(parseFloat(getComputedStyle(dvh).height)),
+      'env t r b l ' + i.env.map(n).join(' ') + (i.forced ? ' (forced)' : ''),
+      'canvas ' + f.left + ',' + f.top + ' ' + f.width + 'x' + f.height + '  insets ' + f.insets.join(' '),
+      'standalone ' + f.standalone + '  scrollY ' + n(window.scrollY) + '  page h ' + (de ? de.scrollHeight : 0),
+      'fix ' + (f.fix || '-') + '  (' + diagState.by + ')'
+    ].join('\n');
+    if (panel.textContent !== text) panel.textContent = text;
+    /* inside the safe area: at its left edge, below the status pane and above the hero (who stands at the
+       screen's middle), clear of the HUD's corners and its bottom rows */
+    var s = f.safe, dn = Math.max(90, (s[3] - s[1]) * 0.2);
+    /* U1-03: at most 62% of the safe width, so it stays left of the right column (the eye row under the minimap) */
+    var pos = (s[0] + 6) + 'px,' + Math.round(s[1] + dn) + 'px,' + Math.max(80, Math.round((s[2] - s[0]) * 0.62) - 6) + 'px';
+    if (panel.__pos !== pos) {
+      panel.__pos = pos;
+      var q = pos.split(',');
+      panel.style.left = q[0]; panel.style.top = q[1]; panel.style.maxWidth = q[2];
+    }
+  }
+  var last = '', loadedAt = 0, shortSince = 0;
+  function layout() {
+    var c = document.getElementById('canvas');
+    if (!c) return;
+    var inp = inputs(), m = computeFrame(inp);
+    document.documentElement.classList.toggle('epd-standalone', inp.standalone);
+    /* the page never scrolls (the standalone CSS rule makes it a screen tall while the viewport is short) */
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+    var L = Math.round(m.ox), T = Math.round(m.oy);
+    var W = Math.max(1, Math.floor(m.vw)), H = Math.max(1, Math.floor(m.vh));
+    /* insets in canvas px, whole px, and never more than half the canvas each way */
+    var ins = [Math.min(Math.ceil(m.t), H / 2), Math.min(Math.ceil(m.r), W / 2),
+               Math.min(Math.ceil(m.b), H / 2), Math.min(Math.ceil(m.l), W / 2)].map(Math.floor);
+    var key = [L, T, W, H].join(',');
+    if (key !== last) {
+      last = key;
+      c.style.left = L + 'px'; c.style.top = T + 'px';
+      c.style.width = W + 'px'; c.style.height = H + 'px';
+    }
+    if (c.width !== W) c.width = W;
+    if (c.height !== H) c.height = H;
+    var crisp = Math.abs((window.devicePixelRatio || 1) - Math.round(window.devicePixelRatio || 1)) < 0.01;
+    c.classList.toggle('epd-crisp', crisp);
+    /* how long the Home Screen app's frame has read short since load (the view diagnostic's settle time) */
+    var now = Date.now();
+    shortSince = loadedAt && inp.standalone && (' ' + m.fix + ' ').indexOf(' short ') >= 0 ? (shortSince || now) : 0;
+    window.__epdFrame = { left: L, top: T, width: W, height: H, insets: ins,
+                          safe: [L + ins[3], T + ins[0], L + W - ins[1], T + H - ins[2]], vw: m.vw, vh: m.vh,
+                          innerW: window.innerWidth, innerH: window.innerHeight, standalone: inp.standalone, fix: m.fix,
+                          shortMs: shortSince ? now - shortSince : 0, inputs: inp };
+    diag(window.__epdFrame);
+  }
+  window.__epdLayout = layout;
+  function burst() {
+    layout();
+    requestAnimationFrame(layout);
+    [50, 150, 300, 600, 1000, 2000].forEach(function (t) { setTimeout(layout, t); });
+  }
+  window.__epdLayoutBurst = burst;
+  document.addEventListener('DOMContentLoaded', function () {
+    layout();
+    if (window.ResizeObserver) { try { new ResizeObserver(burst).observe(document.documentElement); } catch (e) {} }
+  });
+  window.addEventListener('resize', burst);
+  window.addEventListener('orientationchange', burst);
+  window.addEventListener('pageshow', burst);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) burst(); });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', burst);
+    window.visualViewport.addEventListener('scroll', burst);
+  }
+  if (screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', burst);
+  if (window.matchMedia) { try { matchMedia('(orientation: portrait)').addEventListener('change', burst); } catch (e) {} }
+  window.addEventListener('load', function () { loadedAt = Date.now(); burst(); setInterval(layout, 500); });
+  /* no pinch/double-tap zoom or page bounce */
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false });
+})();
+
+/* ---- saves: make IndexedDB writes land before iOS suspends a hidden page ---------------------------
+   gdx-teavm writes every file with its own one-request readwrite transaction; commit() it right away
+   instead of waiting for the task to end. __epdIdbPending counts transactions not yet complete. */
+(function () {
+  if (!window.IDBObjectStore) return;
+  window.__epdIdbPending = 0;
+  var P = IDBObjectStore.prototype;
+  ['put', 'delete'].forEach(function (m) {
+    var orig = P[m];
+    P[m] = function () {
+      var req = orig.apply(this, arguments);
+      try {
+        var tx = this.transaction;
+        if (tx && tx.mode === 'readwrite' && !tx.__epd) {
+          tx.__epd = true;
+          window.__epdIdbPending++;
+          var done = function () { window.__epdIdbPending = Math.max(0, window.__epdIdbPending - 1); };
+          tx.addEventListener('complete', done); tx.addEventListener('abort', done); tx.addEventListener('error', done);
+          if (typeof tx.commit === 'function') tx.commit();
+        }
+      } catch (e) {}
+      return req;
+    };
+  });
+})();
+
+/* ---- offline support + prompt updates ---------------------------------------------------------------
+   The new service worker activates immediately (skipWaiting + clients.claim). When it takes over a page
+   that already had an older one, reload once - right away on the title screen, or (mid-run) the next time
+   the app comes back to the foreground, after the hide-save. Updates are checked on launch and resume. */
+if ('serviceWorker' in navigator) {
+  (function () {
+    var hadController = !!navigator.serviceWorker.controller, pending = false, reloaded = false;
+    function reload() { if (reloaded) return; reloaded = true; location.reload(); }
+    function inRun() { return !!(window.__epdHud && window.__epdHud.inGame); }
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController) { hadController = true; return; }
+      pending = true;
+      if (!inRun()) reload();
+    });
+    setInterval(function () { if (pending && !inRun()) reload(); }, 2000);
+    var reg = null;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js', { scope: './' })
+        .then(function (r) { reg = r; })
+        .catch(function (e) { console.warn('SW registration failed', e); });
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) return;
+      if (pending) { reload(); return; }
+      if (reg) reg.update().catch(function () {});
+    });
+  })();
+}
+if (navigator.storage && navigator.storage.persist) {
+  window.addEventListener('load', function () {
+    navigator.storage.persisted().then(function (p) { return p || navigator.storage.persist(); })
+      .then(function (p) { window.__epdPersisted = p; }).catch(function () {});
+  });
+}
+</script>
+<script>
+/* ---- loading message + on-screen error box ------------------------------------------------------------
+   The game code is ~25 MB; until it has downloaded and started, the page would otherwise be plain black.
+   Shows "Loading... Ns" until the game publishes window.__epdHud, and shows any script error, unhandled
+   promise rejection or WebGL failure in a red box, so a phone user can screenshot what went wrong. */
+(function () {
+  var t0 = Date.now(), box, err, gone = false;
+  function ui() {
+    if (box) return;
+    box = document.createElement('div');
+    box.id = 'dpd-loading';
+    box.style.cssText = 'position:fixed;left:0;right:0;top:42%;z-index:30;text-align:center;font:14px sans-serif;'
+      + 'color:#cfc4a8;pointer-events:none;text-shadow:0 0 4px #000';
+    (document.body || document.documentElement).appendChild(box);
+  }
+  function showError(msg) {
+    if (!err) {
+      err = document.createElement('div');
+      err.id = 'dpd-error';
+      err.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:40;font:12px monospace;color:#fff;'
+        + 'background:rgba(140,20,30,0.92);padding:8px;border-radius:6px;white-space:pre-wrap;max-height:45%;overflow:auto';
+      (document.body || document.documentElement).appendChild(err);
+      err.textContent = 'Something went wrong - please screenshot this:\n';
+    }
+    err.textContent += '\n' + String(msg).slice(0, 600);
+  }
+  window.__dpdShowError = showError;
+  window.addEventListener('error', function (e) {
+    showError((e.message || 'error') + (e.filename ? '  @ ' + e.filename.split('/').pop() + ':' + e.lineno : ''));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    showError('unhandled: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason));
+  });
+  /* WebGL availability: report if the game's canvas cannot get a context */
+  var getCtx = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, opts) {
+    var c = getCtx.call(this, type, opts);
+    if (!c && /webgl/.test(type)) showError('WebGL context could not be created (' + type + ')');
+    return c;
+  };
+  function tick() {
+    if (gone) return;
+    if (window.__epdHud) {
+      gone = true;
+      if (box) box.remove();
+      return;
+    }
+    ui();
+    var s = Math.round((Date.now() - t0) / 1000);
+    box.textContent = 'Diabolic Pixel Dungeon\nLoading... ' + s + 's' + (s > 45 ? '\n(first load downloads ~25 MB)' : '');
+    box.style.whiteSpace = 'pre';
+    setTimeout(tick, 500);
+  }
+  document.addEventListener('DOMContentLoaded', tick);
+})();
+</script>
+<!-- EPD-PWA:END -->
+</head>
+    <body oncontextmenu="return false">
+        <div>
+            <canvas id="canvas"></canvas>
+        </div>
+        <script>
+            async function start() {
+                main()
+            }
+            window.addEventListener("load", start);
+        </script>
+        <script type="text/javascript" charset="utf-8" src="app.js"></script>
+    <!-- EPD-OVERLAY:BEGIN -->
+<div id="epd-overlay" role="dialog" aria-modal="true" hidden>
+  <div class="epd-ov-box">
+    <p id="epd-ov-name" hidden></p>
+    <div class="epd-ov-row">
+      <button type="button" id="epd-ov-save" class="epd-ov-go" hidden></button>
+      <button type="button" id="epd-ov-open" class="epd-ov-go" hidden></button>
+      <button type="button" id="epd-ov-cancel"></button>
+    </div>
+    <p id="epd-ov-pad" hidden></p>
+    <input type="file" id="epd-ov-file" accept=".json,application/json" tabindex="-1" aria-hidden="true">
+  </div>
+</div>
+<!-- EPD-OVERLAY:END -->
+</body>
+</html>
