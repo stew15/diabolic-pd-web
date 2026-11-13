@@ -396,7 +396,7 @@ i:b:/messages/plants/plants_uk.properties:10090:1
 i:b:/messages/plants/plants_es.properties:6924:1
 i:b:/messages/plants/plants_hu.properties:6664:1
 i:b:/messages/plants/plants_tr.properties:6772:1
-i:b:/messages/windows/windows.properties:25725:1
+i:b:/messages/windows/windows.properties:25752:1
 i:b:/messages/windows/windows_hu.properties:28504:1
 i:b:/messages/windows/windows_de.properties:28982:1
 i:b:/messages/windows/windows_it.properties:27282:1
