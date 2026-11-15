@@ -5,6 +5,9 @@
   "resistCap": {"base": 0.75, "max": 0.85},
   "reductionFloor": 0.5,
   "holyVsUnholy": 1.5,
+  "hit": {"heroAccBase": 60, "heroAccPerLevel": 12, "heroAccPerDex": 2, "heroEvaBase": 40, "heroEvaPerLevel": 6,
+          "skillPointRating": 8, "visitorsUseRatings": false,
+          "visitor": {"accuracy": 100, "evasion": 60, "perLevel": 0.12}},
   "monsterResists": [
     {"property": "FIERY", "element": "fire", "pct": 40},
     {"property": "ICY", "element": "frost", "pct": 40},
