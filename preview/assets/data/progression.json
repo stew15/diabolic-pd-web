@@ -1,0 +1,36 @@
+{
+  "xp": {"a": 50, "b": 25, "g": 1.12},
+  "maxLevel": 99,
+  "points": {"attributes": 5, "skills": 1},
+  "attributes": {
+    "classTotal": 75,
+    "str": {"carryBase": 50, "carryPerPoint": 3, "weaponDmgPct": 0.5},
+    "dex": {"weaponDmgPct": 0.5, "weaponFamilies": ["hand_crossbow", "heavy_crossbow", "ritual_dagger", "sword", "greatsword"], "critPct": 0.1},
+    "vit": {"lifeRegen": 0.02},
+    "spi": {"spellDmgPct": 0.5, "manaRegenPct": 0.5}
+  },
+  "regen": {"quietTurns": 5, "lifeQuietPct": 0.1, "lifeAffixPer": 10, "manaPct": 2.0},
+  "skills": {
+    "gates": [0, 5, 12, 20],
+    "maxRank": {"active": 10, "passive": 5},
+    "gearBonusCap": 3,
+    "coefPerRank": 0.12,
+    "costPerRank": 0.05,
+    "variantRank": 5,
+    "variants": 3,
+    "synergy": {"perRank": 0.04, "cap": 0.40},
+    "cdrCap": 0.25,
+    "loadoutSlots": 6,
+    "treesPerClass": 3,
+    "skillsPerTree": 8,
+    "activesPerTree": 5,
+    "passivesPerTree": 3
+  },
+  "respec": {"goldPerLevelSq": 50, "firstFree": true, "pointPct": 10},
+  "killXp": {
+    "base": 55, "perLevel": 0.2, "growth": 1.04,
+    "roles": {"normal": 1, "champion": 3, "elite": 5, "boss": 20},
+    "penalty": {"grace": 5, "perLevel": 0.1, "floor": 0.05}
+  },
+  "corpses": {"turns": 100, "perLevel": 40}
+}
