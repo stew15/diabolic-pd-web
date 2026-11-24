@@ -320,7 +320,7 @@ i:b:/messages/world/town.properties:3183:1
 i:b:/messages/world/world.properties:3052:1
 i:b:/messages/world/saves.properties:2376:1
 i:b:/messages/world/vendor.properties:2262:1
-i:b:/messages/world/quests.properties:5395:1
+i:b:/messages/world/quests.properties:6095:1
 i:b:/messages/world/hud.properties:789:1
 i:b:/messages/world/death.properties:323:1
 i:b:/messages/world/travel.properties:1641:1

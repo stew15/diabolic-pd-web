@@ -6,4 +6,4 @@ output; it is published with GitHub Pages.
 
 Play: https://stew15.github.io/diabolic-pd-web/ — on iPhone, use Share → Add to Home Screen.
 
-Built from source revision fc427f3db.
+Built from source revision b314fae20.
