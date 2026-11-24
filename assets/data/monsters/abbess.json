@@ -4,13 +4,13 @@
              "lore": "She rang the bell to call the river back to its bed. The river answered, and kept her."},
   "monsters": [
     { "id": "abbess.aldreda", "name": "Abbess Aldreda", "role": "brute", "ai": "boss", "al": [12, 12],
-      "introAl": 12, "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "range": 2, "noMods": true,
+      "introAl": 12, "hp": 0.8, "dmg": 1.0, "armour": 0, "element": "physical", "range": 2, "noMods": true,
       "resist": {"blight": 20}, "rankHp": 10, "rankDmg": 0.45,
       "abilities": [
         {"key": "sweep", "id": "sweep", "name": "Sweep", "shape": "arc5", "windup": 1, "cd": 5, "cdLate": 4,
          "power": 5.333, "knock": 2, "anim": "sweep"},
         {"key": "call_sisters", "id": "call_sisters", "name": "Call the Sisters", "windup": 1, "cd": 12,
-         "summon": "drowned.sister", "count": 2, "cap": 3, "range": 6, "anim": "zap"},
+         "summon": "drowned.sister", "count": 1, "cap": 1, "range": 6, "anim": "zap"},
         {"key": "undertow_step", "id": "undertow_step", "name": "Undertow Step", "windup": 1, "cd": 4, "far": 6,
          "turns": 2, "range": 2, "anim": "sink"},
         {"key": "undertow", "id": "undertow", "name": "Undertow", "shape": "line:6", "windup": 1, "cd": 7,
