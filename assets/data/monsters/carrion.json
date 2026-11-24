@@ -1,0 +1,15 @@
+{
+  "family": {"id": "carrion", "name": "Carrion swarms", "tags": ["beast"], "resist": {"frost": -20},
+             "sheet": "sprites/act1/carrion_swarm.png", "frame": [16, 16],
+             "lore": "The crows of the Moor learned to follow the plague carts. They have not forgotten the way."},
+  "monsters": [
+    { "id": "carrion.murder", "name": "Carrion Murder", "role": "swarm", "al": [2, 10], "introAl": 2,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "flying": true, "onHit": {"bleed": 0.25},
+      "abilities": [
+        {"key": "feed", "id": "feed", "name": "Feed", "heal": 0.2, "anim": "attack"} ],
+      "sprite": {"row": 0, "idle": [8, 0, 1, 2, 3], "run": [12, 4, 5, 6, 7], "attack": [12, 8, 9, 10, 0],
+                 "windup": [8], "die": [10, 11, 12, 13, 14, 15]},
+      "desc": "A murder of grave-crows that hunts as one ragged thing, and quarrels over what it catches.",
+      "answer": "Strike the whole cloud at once. When it settles on a corpse, raise, burn or spend the body before it eats." }
+  ]
+}

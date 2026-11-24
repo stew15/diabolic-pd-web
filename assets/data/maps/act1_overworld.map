@@ -40,7 +40,9 @@ legend
   F feature:dungeon:cellars        # The Flooded Cellars, below the tithe barn
   C feature:dungeon:charnel        # The Charnel House, the parish bone-house
   K feature:dungeon:crypts         # The Abbey Crypts, below the south aisle
-  x feature:sealed                 # sealed in M1 (Flooded Nave, Wolf-Holt, Hagstone Barrow)
+  N feature:dungeon:nave           # The Flooded Nave's doors: sealed until nave_open (Act1.mouthFlag)
+  O feature:dungeon:holt           # The Wolf-Holt, under Harrowdene's oldest oak: sealed until holt_open
+  B feature:dungeon:barrow         # Hagstone Barrow, under the holed stone: sealed until barrow_open
   H feature:stamp:hagstone         # the Hagstone ring
   W feature:stamp:mail_coach       # the wrecked mail-coach
   V feature:stamp:cottage          # Sallowmere cottages
@@ -52,8 +54,8 @@ end
 grid
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ^aaaaaaaa^^^^^^^^^^hhhhhhhhhhhh^
-^axaaaaa==============hhhhhhhhh^
-^aaaAaaa6aww~~~~wwhhh=hhhhhhxhh^
+^aNaaaaa==============hhhhhhhhh^
+^aaaAaaa6aww~~~~wwhhh=hhhhhhOhh^
 ^aaaaAaa=w~~~~~~~~whh=hhhhhhhhh^
 ^aaKaaaaw~~~~~~~~~~wh=hhhhhhhhh^
 ^aaaaaaaw~~~~~~~~~~wh=hhhhhhhhh^
@@ -74,7 +76,7 @@ grid
 ^mmmwmm========2+========^^^^^^^
 ^mmwmmmmmmmmmmmm=mmmmmmmmcccccc^
 ^mmmmmmmmmmmmmmm=mmmmmmmmcccccc^
-^mmmxmmmcccccccc=cccccccccccccc^
+^mmmBmmmcccccccc=cccccccccccccc^
 ^mmmmmmmHccccccc=cccccccccccccc^
 ^mmmmmmmcccwcccc=cccccccccccccc^
 ^mmmmmmmcccccccc1cWcccccccccccc^
@@ -85,7 +87,10 @@ grid
 end
 
 # Special cells (tile coordinates). A lantern stands at (4cx+3, 4cy) of its digit's macro cell, never
-# on the road band (4cx+1..4cx+2); a dungeon mouth or sealed entrance at (4cx+1, 4cy+1) of its cell.
+# on the road band (4cx+1..4cx+2); a dungeon mouth at (4cx+1, 4cy+1) of its cell. The nave, holt and
+# barrow mouths are LOCKED_EXIT with their sealed_<key> text until their quest flag is set (M4 9.1).
+# reliquary:<region> and quest:<target> cells are fixed places for the reliquaries (9.2) and the quest
+# objects (7.3); nothing stands on them until those tasks place it.
 markers
   gate 64 122 66 122               # I (16,30): EMPTY_SP gate cells, REGULAR_ENTRANCE -> 100
   gate_arrival 65 121              # arrivals from the town land here, one tile inside the gate
@@ -99,9 +104,16 @@ markers
   dungeon:cellars 13 53            # F (3,13): EXIT, REGULAR_EXIT -> 110
   dungeon:charnel 113 61           # C (28,15): EXIT, REGULAR_EXIT -> 120
   dungeon:crypts 13 21             # K (3,5): EXIT, REGULAR_EXIT -> 130
-  sealed:nave 9 9                  # x (2,2): LOCKED_EXIT, text sealed_nave (the Flooded Nave)
-  sealed:holt 113 13               # x (28,3): LOCKED_EXIT, text sealed_holt (the Wolf-Holt)
-  sealed:barrow 17 97              # x (4,24): LOCKED_EXIT, text sealed_barrow (Hagstone Barrow)
+  dungeon:nave 9 9                 # N (2,2): -> 190 once nave_open, else LOCKED_EXIT, text sealed_nave
+  dungeon:holt 113 13              # O (28,3): -> 150 once holt_open, else LOCKED_EXIT, text sealed_holt
+  dungeon:barrow 17 97             # B (4,24): -> 140 once barrow_open, else LOCKED_EXIT, text sealed_barrow
+  reliquary:lychgate 89 57         # (22,14): the Lychgate Acre reliquary
+  reliquary:merrow 26 26           # (6,6): the Merrow Abbey reliquary
+  quest:q2_cart 41 89              # (10,22): Wenna's cart, by the road west of the Crossways
+  quest:tam_satchel 92 28          # inside the burnt mill stamp: Brother Tam's satchel
+  quest:open_grave_1 105 74        # (26,18): the three open graves below Saint Ysolde's
+  quest:open_grave_2 108 74        # (27,18)
+  quest:open_grave_3 111 74        # (27,18)
   signpost 67 84                   # + (16,21): STATUE fingerpost, text signpost
 end
 

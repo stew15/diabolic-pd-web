@@ -1,0 +1,70 @@
+# The Flooded Nave - the Drowned Abbess's arena (location 190, BOSS_ARENA, AL 12; NaveLevel;
+# docs/arch/40-m4-design.md section 6.1)
+#
+# A drowned abbey church, entered from the Crypts' last stair (the arrival, bottom centre) or through
+# the nave doors on the west wall (out to the overworld mouth at (9,9)). North: the chancel with the
+# altar dais, where the Abbess kneels, and the fallen bell behind it. Between: the crossing (band 3),
+# then the nave - eleven rows of pews (passable, never flood) split by the central aisle (band 1) and
+# the two side aisles (band 2), with pillars that break the line of sight; south: the narthex (band 4).
+#
+# Tide (phase 2): every 6 turns the next band (1 -> 4) becomes deep water. Pews, plinths, the dais and
+# the plain floor never flood. Candles (c) stand on plinths; a lit candle shelters its 3x3 from the toll.
+# NaveRules (checked at load and by NaveTest / MapSourceTest): dry cells >= 30% of the walkable floor at
+# full tide; every dry cell reaches the dais over dry cells, wading at most 2 deep cells at a time; a
+# lit square within 8 steps of every dry cell; the arrival and the doors dry.
+#
+# The rood line (marker rood): the fight starts when the hero first stands on or north of it.
+#
+# Format: world/MapSource (arch 10 section 3.4; 'tide:<n>' and 'candle' are the arena features).
+
+kind arena
+size 21 22
+scale 1
+seed 0
+
+legend
+  # WALL
+  . EMPTY
+  d EMPTY_SP feature:dais             # the altar dais (never floods)
+  A EMPTY_SP feature:dais @abbess     # where she kneels
+  B STATUE feature:bell               # the fallen bell
+  c EMPTY_SP candle                   # a candle stand on its plinth
+  T EMPTY_DECO feature:pew            # pews: passable, never flood
+  O WALL feature:pillar               # pillars block sight
+  1 WATER tide:1                      # the central aisle
+  2 WATER tide:2                      # the side aisles
+  3 WATER tide:3                      # the crossing
+  4 WATER tide:4                      # the narthex
+  @ ENTRANCE @arrival                 # up the stair to the Crypts' last floor
+  D EXIT @doors                       # the nave doors: out to the overworld mouth
+  = EMPTY @threshold
+end
+
+grid
+#####################
+########.BBB.########
+######c.ddddd.c######
+######..ddAdd..######
+#######.ddddd.#######
+#c33333333333333333c#
+#3333333333333333333#
+###22TTTT111TTTT22###
+###22...O111O...22###
+###22TTTT111TTTT22###
+###c2....111....2c###
+###22TTTT111TTTT22###
+###22...O111O...22###
+###22TTTT111TTTT22###
+###22....111....22###
+###22TTTT111TTTT22###
+###22...O111O...22###
+###22TTTT111TTTT22###
+###44444444444444c###
+#D=44444444444444####
+###c44444.@.44444####
+#####################
+end
+
+markers
+  rood 1 6 19 6
+end

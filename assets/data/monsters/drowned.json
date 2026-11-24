@@ -1,0 +1,27 @@
+{
+  "family": {"id": "drowned", "name": "The Drowned", "tags": ["unholy"], "resist": {"frost": 40, "storm": -30},
+             "sheet": "sprites/act1/drowned.png", "frame": [12, 15],
+             "lore": "When the river took Merrow Abbey it took the congregation too, in the middle of a hymn."},
+  "monsters": [
+    { "id": "drowned.parishioner", "name": "Drowned Parishioner", "role": "ambusher", "al": [4, 12], "introAl": 4,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "mix": {"frost": 0.3},
+      "abilities": [
+        {"key": "drag_under", "id": "drag_under", "name": "Drag Under", "shape": "cell", "windup": 1,
+         "power": 1.5, "status": {"root": 2, "chill": 1}, "anim": "emerge"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 0, 1, 0, 2, 3, 3, 2], "run": [8, 4, 5, 6, 7],
+                 "attack": [10, 8, 9, 10, 0], "windup": [8], "die": [8, 11, 12, 13, 14, 15],
+                 "anims": {"ripple": [3, 16, 17], "emerge": [8, 18, 19, 20]}},
+      "desc": "Weed in its hair and the river still running out of its sleeves. It waits under the shallows.",
+      "answer": "Watch the water for rings. When it rises beside you, step off the marked tile." },
+    { "id": "drowned.sister", "name": "Drowned Sister", "role": "caster", "al": [10, 12], "introAl": 10,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "frost", "range": 4,
+      "abilities": [
+        {"key": "heavy", "id": "cold_litany", "name": "Cold Litany", "shape": "line:4", "windup": 1, "cd": 3,
+         "power": 1.4, "element": "frost", "status": {"chill": 1}, "anim": "attack"} ],
+      "sprite": {"row": 1, "idle": [3, 0, 0, 1, 0, 2, 3, 3, 2], "run": [8, 4, 5, 6, 7],
+                 "attack": [10, 8, 9, 10, 0], "windup": [8], "die": [8, 11, 12, 13, 14, 15],
+                 "anims": {"ripple": [3, 16, 17], "emerge": [8, 18, 19, 20]}},
+      "desc": "A nun of the drowned house, still at her office. Frost gathers on her hands when she prays.",
+      "answer": "Her litany runs in a straight line. Step aside of it and strike while she draws breath." }
+  ]
+}

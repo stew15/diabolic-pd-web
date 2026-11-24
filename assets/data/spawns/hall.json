@@ -1,0 +1,21 @@
+{
+  "_doc": "The Ordeal Hall's table (docs/arch/40-m4-design.md §3.12, §10.3): the Act I roster at monster level = the hall's area level (levels 13-20 and up use the same roster on the curves until Act II's exists). Data only: nothing reads it until the hall's roster mode (M4-24) and M4-38. unitsPerWave is the budget of one wave, spent by member weight as on the overworld; every championEvery-th wave adds one champion pack. A group rolls from its minAl (the latest introAl among its members); maxAl is not used in the hall.",
+  "unitsPerWave": 6,
+  "championEvery": 5,
+  "groups": [
+    {"w": 10, "members": [["ghoul.gnawling", 3, 5]]},
+    {"w": 10, "members": [["ghoul.grave", 1, 2]]},
+    {"w": 6,  "members": [["carrion.murder", 1, 2]], "minAl": 2},
+    {"w": 10, "members": [["wolf.moor", 3, 4]], "minAl": 2},
+    {"w": 6,  "members": [["wolf.greymuzzle", 1, 1], ["wolf.moor", 2, 3]], "minAl": 3},
+    {"w": 8,  "members": [["plague.carter", 1, 1]], "minAl": 3},
+    {"w": 6,  "members": [["plague.carter", 1, 1], ["plague.thurifer", 1, 1]], "minAl": 5},
+    {"w": 6,  "members": [["drowned.parishioner", 1, 2]], "minAl": 4},
+    {"w": 8,  "members": [["revenant.mailed", 1, 1]], "minAl": 6},
+    {"w": 6,  "members": [["revenant.mailed", 1, 1], ["revenant.arbalester", 1, 1]], "minAl": 6},
+    {"w": 6,  "members": [["cult.toller", 1, 1], ["cult.slinger", 1, 1]], "minAl": 6},
+    {"w": 5,  "members": [["cult.deacon", 1, 1], ["ghoul.grave", 1, 1]], "minAl": 7},
+    {"w": 5,  "members": [["cult.slinger", 1, 1], ["cult.chorister", 1, 1]], "minAl": 8},
+    {"w": 4,  "members": [["drowned.sister", 1, 2]], "minAl": 10}
+  ]
+}

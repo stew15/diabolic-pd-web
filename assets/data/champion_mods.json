@@ -1,0 +1,181 @@
+{
+  "_doc": "The fifteen champion modifiers (docs/arch/40-m4-design.md §5.1-5.2). Per modifier: icon (art/ui/foe_marks order), minAl, text (name, effect, minionEffect, answer, tell), the champion form and the minion form (numbers; {\"none\": true} = the minion carries nothing), and 'marked' effects (telegraphed cells: shape, windup turns, anchor self|target; checked by ModValidator's escapability rule). Percent values are whole numbers; 'armourPct' is an odds-ratio multiplier of 1 + v/100 (41-m4-minor-issues). blacklist: modifiers never rolled together (listed both ways). roleBans: roles that never carry the modifier. traitBans: monster traits (ability keys, tags) that never carry it.",
+  "mods": [
+    {
+      "id": "blood_frenzied", "icon": 0, "minAl": 3,
+      "name": "Blood-Frenzied",
+      "effect": "Acts 30% faster.",
+      "minionEffect": "Acts 15% faster.",
+      "answer": "Chill or Slow cancels the haste; fight it in a doorway.",
+      "tell": "red after-images",
+      "champion": { "speedPct": 30 },
+      "minion": { "speedPct": 15 }
+    },
+    {
+      "id": "ironhide", "icon": 1, "minAl": 3,
+      "name": "Ironhide",
+      "effect": "Armour doubled, and never below 30%.",
+      "minionEffect": "Armour half again as thick.",
+      "answer": "Spells, damage over time and Rot go around the iron.",
+      "tell": "iron-grey glint",
+      "champion": { "armourPct": 100, "armourFloor": 30 },
+      "minion": { "armourPct": 50, "armourFloor": 0 }
+    },
+    {
+      "id": "vengeful", "icon": 2, "minAl": 3,
+      "name": "Vengeful",
+      "effect": "Turns 15% of every direct blow back on its striker; it never kills.",
+      "minionEffect": "Turns 8% of every direct blow back on its striker; it never kills.",
+      "answer": "Damage over time, traps and summons strike it unpunished.",
+      "tell": "thorned outline",
+      "champion": { "reflectPct": 15, "minLife": 1 },
+      "minion": { "reflectPct": 8, "minLife": 1 }
+    },
+    {
+      "id": "cursecaster", "icon": 3, "minAl": 4,
+      "name": "Cursecaster",
+      "effect": "Every hit lays Weaken for 3 turns.",
+      "minionEffect": "One hit in four lays Weaken for 3 turns.",
+      "answer": "Do not be hit: keep range, block, or send thralls in.",
+      "tell": "violet hands",
+      "champion": { "weakenTurns": 3, "chancePct": 100 },
+      "minion": { "weakenTurns": 3, "chancePct": 25 }
+    },
+    {
+      "id": "vampiric", "icon": 4, "minAl": 4,
+      "name": "Vampiric",
+      "effect": "Drinks back 20% of the damage it deals, thralls included.",
+      "minionEffect": "Drinks back 10% of the damage it deals.",
+      "answer": "Blight halves its feeding; pull your thralls back.",
+      "tell": "red motes flow to it",
+      "champion": { "leechPct": 20, "blightCutPct": 50 },
+      "minion": { "leechPct": 10, "blightCutPct": 50 }
+    },
+    {
+      "id": "plague_ridden", "icon": 5, "minAl": 4,
+      "name": "Plague-ridden",
+      "effect": "Leaves a 3-turn Blight cloud on every cell it quits.",
+      "minionEffect": "Bursts into a Blight cloud where it falls.",
+      "answer": "Step sideways; never walk through its wake.",
+      "tell": "green wake",
+      "champion": { "cloudTurns": 3, "trail": 1, "atDeath": 0 },
+      "minion": { "cloudTurns": 3, "trail": 0, "atDeath": 1 }
+    },
+    {
+      "id": "hoarfrost", "icon": 6, "minAl": 5,
+      "name": "Hoarfrost",
+      "effect": "Hits Chill; leaves 3-turn frost behind it that Chills whoever steps in.",
+      "minionEffect": "Three hits in ten Chill.",
+      "answer": "Do not chase it through the rime; fire melts the trail.",
+      "tell": "rime trail",
+      "champion": { "chillPct": 100, "chillTurns": 2, "tileTurns": 3 },
+      "minion": { "chillPct": 30, "chillTurns": 2, "tileTurns": 0 }
+    },
+    {
+      "id": "warded", "icon": 7, "minAl": 5,
+      "name": "Warded",
+      "effect": "Every resistance raised by 40, to at most 75.",
+      "minionEffect": "Every resistance raised by 20, to at most 75.",
+      "answer": "Plain steel and piercing blows ignore the ward.",
+      "tell": "pale shimmer",
+      "champion": { "resistPct": 40, "resistCap": 75 },
+      "minion": { "resistPct": 20, "resistCap": 75 }
+    },
+    {
+      "id": "hungering", "icon": 8, "minAl": 6,
+      "name": "Hungering",
+      "effect": "Each blow that lands feeds it +10% damage, up to +100%; it sheds one helping per 3 turns unfed.",
+      "minionEffect": "Each blow that lands feeds it +10% damage, up to +30%.",
+      "answer": "Starve it: kite, block, hold your thralls back.",
+      "tell": "swells and reddens; a count on its plate",
+      "champion": { "stackPct": 10, "maxPct": 100, "decayTurns": 3 },
+      "minion": { "stackPct": 10, "maxPct": 30, "decayTurns": 3 }
+    },
+    {
+      "id": "pyre_touched", "icon": 9, "minAl": 6,
+      "name": "Pyre-touched",
+      "effect": "Burns whoever stands beside it; two turns after it dies its pyre bursts across two tiles.",
+      "minionEffect": "Burns whoever stands beside it; a turn after it dies its pyre bursts across one tile.",
+      "answer": "Finish it, then step away; or fight it from range.",
+      "tell": "embers; a countdown ring",
+      "champion": { "burnTurns": 2, "burstPct": 200,
+        "marked": [ { "what": "burst", "shape": "blast:2", "windup": 2, "anchor": "self" } ] },
+      "minion": { "burnTurns": 2, "burstPct": 120,
+        "marked": [ { "what": "burst", "shape": "blast:1", "windup": 1, "anchor": "self" } ] }
+    },
+    {
+      "id": "stormcalled", "icon": 10, "minAl": 7,
+      "name": "Stormcalled",
+      "effect": "Hits Shock; every 6 turns it calls a storm line toward you.",
+      "minionEffect": "Three hits in ten Shock.",
+      "answer": "Sidestep the line, or break its line of sight.",
+      "tell": "crackle; the marked line",
+      "champion": { "shockPct": 100, "every": 6, "linePct": 180,
+        "marked": [ { "what": "storm line", "shape": "line:6", "windup": 1, "anchor": "self" } ] },
+      "minion": { "shockPct": 30, "every": 0, "linePct": 0 }
+    },
+    {
+      "id": "shepherd", "icon": 11, "minAl": 7,
+      "name": "Shepherd",
+      "effect": "Every 8 turns it calls 2 of its kin up from omen cells, 4 alive at most.",
+      "minionEffect": "",
+      "answer": "Stun the call, and kill the shepherd first.",
+      "tell": "a raised arm",
+      "chaotic": true,
+      "champion": { "every": 8, "windup": 1, "raise": 2, "maxAlive": 4 },
+      "minion": { "none": true }
+    },
+    {
+      "id": "phasing", "icon": 12, "minAl": 8,
+      "name": "Phasing",
+      "effect": "Every 5 turns it marks a cell beside you and steps out of the rift there next turn.",
+      "minionEffect": "",
+      "answer": "Move off and it loses its turn; a trap on the mark greets it.",
+      "tell": "a rift mark",
+      "chaotic": true,
+      "champion": { "every": 5, "windup": 1 },
+      "minion": { "none": true }
+    },
+    {
+      "id": "unstoppable", "icon": 13, "minAl": 9,
+      "name": "Unstoppable",
+      "effect": "Cannot be Stunned, Frozen, Feared or Rooted; Slow and Chill still bite.",
+      "minionEffect": "",
+      "answer": "Dodge every heavy blow and keep your distance.",
+      "tell": "white eyes",
+      "champion": { "immune": ["stun", "freeze", "fear", "root"] },
+      "minion": { "none": true }
+    },
+    {
+      "id": "mirrored", "icon": 14, "minAl": 10,
+      "name": "Mirrored",
+      "effect": "At half Life it splits into two, each with the Life left; only the first pays its due.",
+      "minionEffect": "",
+      "answer": "Area damage, or burst it through half Life at once.",
+      "tell": "a double outline below 60% Life",
+      "chaotic": true,
+      "champion": { "splitAtPct": 50, "tellBelowPct": 60 },
+      "minion": { "none": true }
+    }
+  ],
+  "blacklist": {
+    "phasing": ["mirrored", "blood_frenzied"],
+    "mirrored": ["phasing", "vampiric", "shepherd"],
+    "ironhide": ["warded"],
+    "warded": ["ironhide"],
+    "vampiric": ["hungering", "mirrored"],
+    "hungering": ["vampiric"],
+    "shepherd": ["mirrored"],
+    "blood_frenzied": ["phasing", "unstoppable"],
+    "unstoppable": ["blood_frenzied"],
+    "pyre_touched": ["plague_ridden"],
+    "plague_ridden": ["pyre_touched"]
+  },
+  "roleBans": {
+    "shepherd": ["summoner"],
+    "phasing": ["ambusher", "shooter"]
+  },
+  "traitBans": {
+    "mirrored": ["rise_again"]
+  }
+}

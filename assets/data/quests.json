@@ -1,0 +1,157 @@
+{
+  "_comment": "The six Act I quests (docs/arch/40-m4-design.md §7.1-§7.3). File order is the quest order (q1..q6 of ?quests=). Step types: talk, kill_tag, kill_named, reach, interact, light, carry, use_at, return (the last step). Rewards: skill, attr, belt, gold, flag; the act's sum is +2 skill and +5 attribute points (QuestValidator). {n} and {max} in a toast are the count so far and the count.",
+  "quests": [
+    {
+      "id": "lantern_must_burn",
+      "giver": "hobb",
+      "requires": {},
+      "name": "The Lantern Must Burn",
+      "offer": "Thirty years I lit them, every dusk, and never once missed a wick. Now there's things nesting round the Coach Road lantern and my knees won't carry me past the gate. Clear them off, light it, and the road will remember the way home. So will you.",
+      "steps": [
+        {"type": "kill_tag", "target": "q1_pack", "count": 6,
+         "journal": "Drive off the things nesting round the Coach Road Lantern.",
+         "toast": "Nest cleared {n}/{max}"},
+        {"type": "light", "target": "act1.coach_road",
+         "journal": "Light the Coach Road Lantern.",
+         "toast": "The Coach Road Lantern burns"},
+        {"type": "return",
+         "journal": "Tell Sexton Hobb the lantern burns again.",
+         "toast": "Return to Sexton Hobb"}
+      ],
+      "rewards": [
+        {"type": "flag", "flag": "lanterns_open"},
+        {"type": "gold", "amount": 60},
+        {"type": "flag", "flag": "ragpicker_arrived"}
+      ],
+      "handIn": "I saw it from the wall. A little yellow eye on the road, just where it ought to be. The others will answer it now, one to the next, if you can reach them. Keep a flame of it about you and it'll bring you back to this gate.",
+      "done": "The Coach Road Lantern burns. Every lantern you light now answers the others, and the Lantern of Return brings you home."
+    },
+    {
+      "id": "plague_cart",
+      "giver": "wenna",
+      "requires": {},
+      "name": "The Plague Cart",
+      "offer": "My cart went out to Hagstone with the physic for the moor farms and never came back. The carter was a decent man. If something wears his coat now, don't trust it. I need that chest of remedies more than I need the cart, but bring what you find.",
+      "steps": [
+        {"type": "kill_tag", "target": "q2_cart", "count": 4,
+         "journal": "Find Wenna's cart on Hagstone Moor and put down what wears the carter's coat.",
+         "toast": "The cart's keepers {n}/{max}"},
+        {"type": "reach", "target": "sallowmere",
+         "journal": "Follow the wheel-ruts to Sallowmere green.",
+         "toast": "The ruts end at Sallowmere"},
+        {"type": "carry", "target": "reeve_dunmow", "token": "physic_chest",
+         "journal": "Take the physic chest from Reeve Dunmow in the Flooded Cellars.",
+         "toast": "Carried: Wenna's physic chest"},
+        {"type": "return",
+         "journal": "Bring the physic chest back to Wenna.",
+         "toast": "Return to Wenna"}
+      ],
+      "rewards": [
+        {"type": "flag", "flag": "apothecary_open"},
+        {"type": "belt", "amount": 1}
+      ],
+      "handIn": "The seals are broken but the jars are whole. Bless you. I'll have the shutters up by morning and the stove going. Here, take this strap. It holds one more flask than a belt has any right to.",
+      "done": "Wenna's apothecary is open, and your belt holds one more draught."
+    },
+    {
+      "id": "odiles_reliquary",
+      "giver": "odile",
+      "requires": {"quests": ["lantern_must_burn"], "region": "sallowmere"},
+      "name": "Sister Odile's Reliquary",
+      "offer": "There is a bone-house beyond Lychgate where the parish keeps its saints. A knight who took vows there stands guard over the reliquary still, though he no longer knows what he guards. Saint Ysolde's knucklebone must not stay in the dark with him. Bring her to me.",
+      "steps": [
+        {"type": "reach", "target": "120",
+         "journal": "Find the bone-house in Lychgate Acre.",
+         "toast": "The bone-house"},
+        {"type": "carry", "target": "ysolde_relic", "token": "ysolde_relic",
+         "journal": "Take Saint Ysolde's knucklebone from the reliquary Sir Aubrin Vance guards.",
+         "toast": "Carried: Saint Ysolde's knucklebone"},
+        {"type": "return",
+         "journal": "Bring the relic to Sister Odile.",
+         "toast": "Return to Sister Odile"}
+      ],
+      "rewards": [
+        {"type": "attr", "amount": 5}
+      ],
+      "handIn": "So small a thing, to have rung so many bells. Thank you. Sir Aubrin kept faith longer than his flesh did; I will say his name tonight. Kneel a moment. The saint gives what she has, and she has always had more strength than she looked.",
+      "done": "Saint Ysolde's relic rests in the chapel. You have five attribute points to place."
+    },
+    {
+      "id": "grave_matters",
+      "giver": "hobb",
+      "requires": {"quests": ["lantern_must_burn"], "region": "lychgate"},
+      "name": "Grave Matters",
+      "offer": "Someone's been at the churchyard of Saint Ysolde's with spades. Not robbers; robbers fill the hole after. Three graves stand open and empty. Look into them for me. Whatever climbed out, or was carried out, I want to know which way it went.",
+      "steps": [
+        {"type": "interact", "targets": ["open_grave_1", "open_grave_2", "open_grave_3"], "sets": "barrow_open",
+         "journal": "Examine the three open graves at Saint Ysolde's.",
+         "toast": "Graves examined {n}/{max}"},
+        {"type": "reach", "target": "140",
+         "journal": "Follow the cart-ruts west to Hagstone Barrow.",
+         "toast": "Hagstone Barrow"},
+        {"type": "kill_named", "target": "deacon_marrow",
+         "journal": "Put down Deacon Ulric Marrow in the barrow.",
+         "toast": "Deacon Marrow is still"},
+        {"type": "return",
+         "journal": "Tell Sexton Hobb where the dead were taken.",
+         "toast": "Return to Sexton Hobb"}
+      ],
+      "rewards": [
+        {"type": "skill", "amount": 1}
+      ],
+      "handIn": "Marrow. He buried half this parish and swore he'd ring them all awake one day. I took it for drink talking. I'll fill the graves myself and not ask who goes back in them. You learned something down there, I can see it. Keep it.",
+      "done": "The barrow is quiet and the graves are filled. You have a skill point to spend."
+    },
+    {
+      "id": "bell_rope",
+      "giver": "cael",
+      "requires": {"quests": ["grave_matters"]},
+      "name": "The Bell-Rope",
+      "offer": "When the bell cracked, Brother Tam cut the rope and ran. The stair below the abbey will not open for anyone who comes without it; the Abbess bound it so. Tam was last seen at the burnt mill in Harrowdene. If he is dead, find what he carried. If he is not, I would rather not know.",
+      "steps": [
+        {"type": "interact", "target": "tam_satchel", "sets": "holt_open",
+         "journal": "Find Brother Tam's satchel at the burnt mill in Harrowdene.",
+         "toast": "Brother Tam's satchel"},
+        {"type": "carry", "target": "hollowjaw", "token": "bell_rope",
+         "journal": "Kill Hollowjaw in the Wolf-Holt and take the rope.",
+         "toast": "Carried: the severed bell-rope"},
+        {"type": "use_at", "target": "crypts_stair", "token": "bell_rope", "sets": "crypts_unsealed",
+         "journal": "Hang the rope at the sealed stair on Abbey Crypts floor 3.",
+         "toast": "The stair below the crypts lies open"},
+        {"type": "return",
+         "journal": "Tell Brother Cael the way to the nave is open.",
+         "toast": "Return to Brother Cael"}
+      ],
+      "rewards": [
+        {"type": "flag", "flag": "nave_open"},
+        {"type": "flag", "flag": "altar_unlocked"},
+        {"type": "skill", "amount": 1}
+      ],
+      "handIn": "A wolf's den. Poor Tam; he ran from one hunger into another. The rope is where it belongs again, and the way is open. I can bless the old altar now, though it will be some while before it answers. Take this much of the abbey's learning with you.",
+      "done": "The way to the Flooded Nave is open. You have a skill point to spend."
+    },
+    {
+      "id": "drowned_abbess",
+      "giver": "odile",
+      "requires": {"quests": ["bell_rope"]},
+      "name": "The Drowned Abbess",
+      "offer": "Mother Aldreda would not let go of the rope while the water rose. She is ringing still, down there, and every stroke calls another of the dead up out of the mud. I was her novice. I cannot do this. Go into the nave and let her rest.",
+      "steps": [
+        {"type": "reach", "target": "190",
+         "journal": "Enter the Flooded Nave.",
+         "toast": "The Flooded Nave"},
+        {"type": "kill_named", "target": "abbess_aldreda",
+         "journal": "Lay the Drowned Abbess to rest.",
+         "toast": "The bell is silent"},
+        {"type": "return",
+         "journal": "Tell Sister Odile the bell has stopped.",
+         "toast": "Return to Sister Odile"}
+      ],
+      "rewards": [
+        {"type": "flag", "flag": "act2_open"}
+      ],
+      "handIn": "I heard it stop. All of Lantern's Rest heard it. For a moment nobody breathed, as though the silence might break too. She taught me my letters, you know, and how to sit with the dying. Thank you for sitting with her.",
+      "done": "The Drowned Abbess rests. Merrow Abbey is silent, and the road beyond the moor lies open."
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "family": {"id": "wolf", "name": "Moor wolves", "tags": ["beast"], "resist": {"frost": 20, "fire": -20},
+             "sheet": "sprites/act1/moor_wolf.png", "frame": [16, 15],
+             "lore": "When the shepherds left the Moor the wolves kept the flocks. Then there were no flocks."},
+  "monsters": [
+    { "id": "wolf.moor", "name": "Moor Wolf", "role": "rusher", "al": [2, 10], "introAl": 2,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical",
+      "abilities": [
+        {"key": "pack_bonus", "id": "flank", "name": "Flank", "perAlly": 0.25, "max": 0.25, "kin": "wolf"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 0, 1, 1, 0, 2], "run": [12, 3, 4, 5, 6], "attack": [12, 7, 8, 9, 0],
+                 "windup": [7], "die": [10, 10, 11, 12, 13, 14], "anims": {"howl": [4, 15, 16, 17, 16, 17]}},
+      "desc": "Lean and grey along the back, with the patience of an animal that eats once a week.",
+      "answer": "Keep your back to a wall so only one can reach you at a time." },
+    { "id": "wolf.greymuzzle", "name": "Greymuzzle", "role": "support", "al": [3, 10], "introAl": 3,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical",
+      "abilities": [
+        {"key": "howl", "id": "howl", "name": "Howl", "shape": "ring:6", "windup": 1, "cd": 10, "haste": 0.3,
+         "turns": 4, "wake": 10, "fearOnDeath": 2, "anim": "howl"} ],
+      "sprite": {"row": 1, "idle": [3, 0, 0, 1, 1, 0, 2], "run": [12, 3, 4, 5, 6], "attack": [12, 7, 8, 9, 0],
+                 "windup": [7], "die": [10, 10, 11, 12, 13, 14], "anims": {"howl": [4, 15, 16, 17, 16, 17]}},
+      "desc": "An old she-wolf with a torn ear. The pack runs when she sings, and scatters when she stops.",
+      "answer": "Stun her mid-howl, or bring her down first: her wolves lose heart when she falls." }
+  ]
+}

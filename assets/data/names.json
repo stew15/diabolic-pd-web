@@ -10,5 +10,20 @@
     "armour": ["Vestment", "Penance", "Cerement", "Oratory", "Cloister", "Battlement", "Wimple", "Rampart", "Lattice", "Husk", "Covenant", "Casement", "Hermitage", "Habit", "Cassock", "Surplice", "Scapular", "Chasuble", "Cope", "Tabard", "Buttress", "Chantry", "Priory", "Contrition", "Confession", "Solitude", "Seclusion", "Abstinence", "Hairshirt", "Portcullis", "Sepulchre", "Mausoleum"],
     "jewellery": ["Lantern", "Tear", "Paternoster", "Promise", "Ember", "Keepsake", "Token", "Wick", "Oath", "Tress", "Glimmer", "Secret", "Memento", "Cameo", "Vial", "Halo", "Remembrance", "Obol", "Farthing", "Pearl", "Lodestar", "Murmur", "Solace", "Regret", "Longing", "Absence", "Remnant", "Relic", "Ashes", "Farewell", "Dowry", "Benison"],
     "off_hand": ["Ledger", "Vespers", "Redoubt", "Testament", "Canticle", "Barricade", "Hearth", "Bell", "Pyre", "Censer", "Almonry", "Gate", "Psalter", "Missal", "Breviary", "Folio", "Palimpsest", "Rubric", "Colophon", "Quire", "Lectern", "Pulpit", "Font", "Thurible", "Monstrance", "Pyx", "Aspergill", "Reredos", "Rood", "Lychgate", "Chalice", "Ciborium"]
+  },
+  "elite": {
+    "_doc": "Generated elite names (docs/arch/40-m4-design.md §5.1): title (by monster family; any = the fallback) + given + epithet, read by EliteNames and checked by ModValidator. Titles carry no gender (any title meets any given name; ChampionTest checks it).",
+    "title": {
+      "ghoul": ["Old", "Sexton", "Gaunt", "Pale", "Digger", "Hollow"],
+      "carrion": ["Old", "Elder", "Grey", "Black", "Ragged", "Gaunt"],
+      "wolf": ["Old", "Grey", "Gaunt", "Elder", "Lean", "Scarred"],
+      "plague": ["Reeve", "Carter", "Sexton", "Pale", "Tinker", "Old"],
+      "revenant": ["Marshal", "Captain", "Bailiff", "Gaoler", "Herald", "Ensign"],
+      "cult": ["Deacon", "Cantor", "Acolyte", "Proctor", "Elder", "Votary"],
+      "drowned": ["Novice", "Votary", "Chorist", "Pale", "Hollow", "Acolyte"],
+      "any": ["Old", "Elder", "Grey", "Gaunt", "Pale", "Sexton"]
+    },
+    "given": ["Merewen", "Hale", "Tamsin", "Ysmay", "Corvin", "Odeline", "Bartram", "Ebbe", "Sabyn", "Joss", "Hawise", "Orrin", "Wenna", "Thurlo", "Edony", "Sefton", "Gilda", "Maudlin", "Anselm", "Brannoc", "Ide", "Lettice", "Wymond", "Elvet", "Rohese", "Dunstan", "Avice", "Hob"],
+    "epithet": ["Twice-Buried", "the Lamp-Blind", "Who Counts Teeth", "the Hollow-Eyed", "of the Nine Nails", "the Unshriven", "of the Low Bell", "Salt-Tongued", "the Wick-Eater", "Who Weeps Tar", "of the Sunken Pew", "the Ninth Mourner", "Ash-Handed", "the Candle-Thief", "of Seven Graves", "Who Hums at Wakes", "the Rope-Kissed", "Mould-Crowned", "the Last Sexton", "of the Cracked Lid", "the Drowned Twice", "Who Never Knelt", "the Moth-Wed", "Bell-Deaf", "of the Black Font", "the Grave-Warm", "the Pale Tithe", "Who Sups on Ash"]
   }
 }

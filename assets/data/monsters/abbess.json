@@ -1,0 +1,31 @@
+{
+  "family": {"id": "abbess", "name": "The Drowned Abbess", "tags": ["unholy"], "resist": {"frost": 40, "storm": -30},
+             "sheet": "sprites/act1/drowned_abbess.png", "frame": [24, 24],
+             "lore": "She rang the bell to call the river back to its bed. The river answered, and kept her."},
+  "monsters": [
+    { "id": "abbess.aldreda", "name": "Abbess Aldreda", "role": "brute", "ai": "boss", "al": [12, 12],
+      "introAl": 12, "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "range": 2, "noMods": true,
+      "resist": {"blight": 20}, "rankHp": 10, "rankDmg": 0.45,
+      "abilities": [
+        {"key": "sweep", "id": "sweep", "name": "Sweep", "shape": "arc5", "windup": 1, "cd": 5, "cdLate": 4,
+         "power": 5.333, "knock": 2, "anim": "sweep"},
+        {"key": "call_sisters", "id": "call_sisters", "name": "Call the Sisters", "windup": 1, "cd": 12,
+         "summon": "drowned.sister", "count": 2, "cap": 3, "range": 6, "anim": "zap"},
+        {"key": "undertow_step", "id": "undertow_step", "name": "Undertow Step", "windup": 1, "cd": 4, "far": 6,
+         "turns": 2, "range": 2, "anim": "sink"},
+        {"key": "undertow", "id": "undertow", "name": "Undertow", "shape": "line:6", "windup": 1, "cd": 7,
+         "power": 2.667, "element": "frost", "pull": 3, "status": {"root": 1}, "fromPhase": 2, "anim": "haul"},
+        {"key": "snuff", "id": "snuff", "name": "Snuff", "shape": "ring:1", "windup": 1, "cd": 10, "power": 3.333,
+         "range": 6, "maxDark": 3, "fromPhase": 3, "anim": "sweep"},
+        {"key": "toll", "id": "toll", "name": "The Toll", "windup": 2, "cd": 8, "power": 1.778, "element": "storm",
+         "status": {"fear": 3}, "planned": true, "fromPhase": 3, "anim": "toll"},
+        {"key": "haul", "id": "haul", "name": "Haul the Rope", "cd": 2, "fromPhase": 2, "anim": "haul"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 0, 1, 1, 0, 0, 1, 2], "run": [8, 3, 4, 5, 6],
+                 "attack": [10, 7, 8, 9, 0], "windup": [7], "die": [6, 14, 15, 16, 17, 18],
+                 "anims": {"zap": [8, 10, 11, 12, 13, 0], "sweep": [10, 19, 19, 20, 21, 0],
+                           "toll": [6, 22, 23, 24, 24, 0], "haul": [4, 25, 26], "sink": [6, 0, 27],
+                           "rise": [6, 27, 28, 0]}},
+      "desc": "The last abbess of Merrow, crowned with the bell she could not stop ringing. Her rope still lashes from two paces.",
+      "answer": "Leave the marked squares before they land. Kill her sisters. When the bell shudders, stand by a lit candle." }
+  ]
+}

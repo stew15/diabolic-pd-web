@@ -1,0 +1,31 @@
+{
+  "family": {"id": "revenant", "name": "Revenants", "tags": ["unholy"],
+             "resist": {"frost": 30, "blight": 25, "storm": -20},
+             "sheet": "sprites/act1/revenant.png", "frame": [12, 15],
+             "lore": "The Lychgate men swore to keep the acre until relieved. Nobody came to relieve them."},
+  "monsters": [
+    { "id": "revenant.mailed", "name": "Mailed Revenant", "role": "brute", "al": [6, 12], "introAl": 6,
+      "hp": 1.0, "dmg": 1.0, "armour": 20, "element": "physical",
+      "abilities": [
+        {"key": "heavy", "id": "cleave", "name": "Cleave", "shape": "arc3", "windup": 1, "cd": 5, "power": 1.8,
+         "knock": 1, "anim": "attack"},
+        {"key": "rise_again", "id": "rise_again", "name": "Rise Again", "turns": 3, "lifePct": 0.5,
+         "breakPct": 0.15, "anim": "bones"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 0, 1, 1, 0, 2], "run": [8, 3, 4, 5, 6], "attack": [8, 7, 8, 9, 0],
+                 "windup": [7], "die": [8, 10, 11, 12, 13, 14], "anims": {"bones": [6, 19, 20, 21, 0]}},
+      "desc": "Rusted mail over nothing much. It still stands its watch, and it does not like to be relieved.",
+      "answer": "Leave the marked arc. When it falls, end the bones with fire, holy light, one heavy blow, or by taking the corpse." },
+    { "id": "revenant.arbalester", "name": "Revenant Arbalester", "role": "shooter", "al": [6, 12], "introAl": 6,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "range": 6, "speed": 0.75, "noRetreat": true,
+      "abilities": [
+        {"key": "heavy", "id": "aimed_bolt", "name": "Aimed Bolt", "shape": "line:7", "windup": 1, "cd": 4,
+         "power": 2.0, "firstBody": true, "anim": "zap"},
+        {"key": "rise_again", "id": "rise_again", "name": "Rise Again", "turns": 3, "lifePct": 0.5,
+         "breakPct": 0.15, "anim": "bones"} ],
+      "sprite": {"row": 1, "idle": [3, 0, 0, 1, 1, 0, 2], "run": [8, 3, 4, 5, 6], "attack": [8, 7, 8, 9, 0],
+                 "windup": [7], "die": [8, 10, 11, 12, 13, 14],
+                 "anims": {"zap": [6, 15, 16, 17, 18], "bones": [6, 19, 20, 21, 0]}},
+      "desc": "It winds the crossbow with the patience of a thing that has nowhere else to be.",
+      "answer": "Step off the marked line or put a body between you. When it falls, burn, bless, smash or take the bones." }
+  ]
+}

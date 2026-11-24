@@ -43,5 +43,30 @@
     "desc": "Wounds knit slowly closed.\n\nLife restored per turn: %1$d\nTurns remaining: %2$d"},
   "taunted": {
     "name": "taunted",
-    "desc": "Goaded beyond reason, this foe can only attack the one who provoked it.\n\nTurns remaining: %s."}
+    "desc": "Goaded beyond reason, this foe can only attack the one who provoked it.\n\nTurns remaining: %s."},
+  "nave": {
+    "toll": {"label": "Toll",
+      "warn": "The drowned bell shudders on its rope. Reach a lit candle before it speaks!",
+      "rings": "The bell tolls! Its voice rolls through the flooded nave like a winter storm.",
+      "spared": "The candlelight holds the bell's voice at bay.",
+      "gutter": "The bell's breath gutters the candle that sheltered you.",
+      "vigil": "Your vigil holds: the dread finds no purchase in you."},
+    "tide": {"label": "Tide",
+      "rising": "The water stirs along the marked aisle...",
+      "flood": "Black water wells up from below: the aisle drowns."},
+    "counter": {"candles": "Candles", "tide": "Tide"},
+    "fight": {"start": "Something kneeling at the altar lifts its head. Under the pews the water begins to stir."},
+    "deep": {"desc": "Deep water, black and cold. Wading through it slows you; no fire catches here and no snare holds."},
+    "candle": {"name": "candle stand",
+      "desc_lit": "An iron pricket stand on a stone plinth, its thick candle burning. While it burns, its light shelters the squares around it from the bell.",
+      "desc_out": "An iron pricket stand on a stone plinth. Its candle has gone out and a thread of smoke curls from the wick. Tend it, or put fire to it, to light it again.",
+      "steady": "The candle burns steadily.",
+      "relit": "You shield the wick and coax the candle alight.",
+      "relit_fire": "The flames catch the wick: the candle burns again."},
+    "tile": {"pew": "pew",
+      "pew_desc": "A long oak pew, swollen with damp. The water has never risen over it.",
+      "dais": "altar dais",
+      "dais_desc": "Pale flagstones raised above the flood, worn smooth by kneeling.",
+      "bell": "fallen bell",
+      "bell_desc": "A great bronze bell lies cracked on its flank where it fell from the tower, green with the years."}}
 }

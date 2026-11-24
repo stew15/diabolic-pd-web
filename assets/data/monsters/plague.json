@@ -1,0 +1,27 @@
+{
+  "family": {"id": "plague", "name": "Pox-bearers", "tags": ["unholy"], "resist": {"blight": 40, "fire": -20},
+             "sheet": "sprites/act1/plague_bearer.png", "frame": [12, 15],
+             "lore": "They hauled the dead out of Sallowmere until there was no one left to haul them."},
+  "monsters": [
+    { "id": "plague.carter", "name": "Pox-Carter", "role": "brute", "al": [3, 9], "introAl": 3,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "noMods": ["mirrored"],
+      "abilities": [
+        {"key": "heavy", "id": "slam", "name": "Slam", "shape": "arc3", "windup": 1, "cd": 4, "power": 2.0,
+         "status": {"blight": 1}, "anim": "swing"},
+        {"key": "death_cloud", "id": "burst", "name": "Burst", "shape": "blast:1", "windup": 1, "turns": 4,
+         "element": "blight"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 1, 2, 1], "run": [6, 3, 4, 5, 6], "attack": [8, 7, 8, 9, 0],
+                 "windup": [7], "die": [8, 10, 11, 12, 13, 14], "anims": {"swing": [10, 15, 16, 17, 18]}},
+      "desc": "It was a carter once. The cowl is laced shut from the inside.",
+      "answer": "Step out of the marked arc; back away when it falls." },
+    { "id": "plague.thurifer", "name": "Thurifer", "role": "caster", "al": [4, 10], "introAl": 5,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "blight", "range": 4,
+      "abilities": [
+        {"key": "heavy", "id": "fume", "name": "Fume", "shape": "blast:1", "windup": 2, "cd": 5, "power": 1.2,
+         "range": 5, "element": "blight", "status": {"blight": 1}, "anim": "swing"} ],
+      "sprite": {"row": 1, "idle": [3, 0, 1, 2, 1], "run": [6, 3, 4, 5, 6], "attack": [8, 7, 8, 9, 0],
+                 "windup": [7], "die": [8, 10, 11, 12, 13, 14], "anims": {"swing": [10, 15, 16, 17, 18]}},
+      "desc": "It swings a censer of something that was never incense, and murmurs the same verse over and over.",
+      "answer": "The smoke lands two turns after it is thrown. Walk out of the square, then close in." }
+  ]
+}

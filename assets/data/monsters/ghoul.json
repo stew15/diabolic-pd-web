@@ -1,0 +1,25 @@
+{
+  "family": {"id": "ghoul", "name": "Ghouls", "tags": ["unholy"], "resist": {"blight": 15, "fire": -20},
+             "sheet": "sprites/act1/ghoul.png", "frame": [12, 15],
+             "lore": "The parish buried its dead in a hurry the year the bell cracked. Some of them noticed."},
+  "monsters": [
+    { "id": "ghoul.gnawling", "name": "Gnawling", "role": "swarm", "al": [1, 7], "introAl": 1,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical",
+      "abilities": [
+        {"key": "pack_bonus", "id": "pack_hunger", "name": "Pack Hunger", "perAlly": 0.1, "max": 0.3,
+         "kin": "ghoul.gnawling"} ],
+      "sprite": {"sheet": "sprites/act1/gnawling.png", "row": 0, "idle": [3, 0, 1], "run": [12, 2, 3, 4, 5],
+                 "attack": [12, 6, 7, 8, 0], "windup": [6], "die": [10, 9, 10, 11, 12, 13]},
+      "desc": "A stunted ghoul, hunched so low its knuckles scrape the ground. Hunger has worn it to sinew and teeth, and it still wears the grave linen it was buried in.",
+      "answer": "Fight them in a doorway, or catch the whole crowd in one blow." },
+    { "id": "ghoul.grave", "name": "Grave Ghoul", "role": "rusher", "al": [1, 9], "introAl": 1,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "onHit": {"bleed": 0.2},
+      "abilities": [
+        {"key": "lunge", "id": "lunge", "name": "Lunge", "shape": "cell", "windup": 1, "cd": 6, "power": 1.6,
+         "minRange": 2, "maxRange": 3, "anim": "attack"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 0, 1, 0, 2, 2], "run": [12, 3, 4, 5, 6], "attack": [12, 7, 8, 9, 0],
+                 "windup": [7], "die": [10, 10, 11, 12, 13, 14]},
+      "desc": "It digs with its hands because it has forgotten what a spade is for.",
+      "answer": "When it crouches, the marked tile is where it lands. Be somewhere else." }
+  ]
+}

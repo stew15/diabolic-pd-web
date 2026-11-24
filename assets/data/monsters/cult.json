@@ -1,0 +1,48 @@
+{
+  "family": {"id": "cult", "name": "Cultists of the Cracked Bell", "tags": ["human"],
+             "resist": {"storm": 30, "blight": -20},
+             "sheet": "sprites/act1/bell_cultist.png", "frame": [12, 15],
+             "lore": "They heard the bell crack and took the sound for an answer. They have been ringing back ever since."},
+  "monsters": [
+    { "id": "cult.slinger", "name": "Knell Slinger", "role": "shooter", "al": [4, 12], "introAl": 6,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical", "range": 5,
+      "abilities": [],
+      "sprite": {"row": 1, "idle": [3, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2], "run": [10, 3, 4, 5, 6],
+                 "attack": [10, 7, 8, 9, 0], "windup": [7], "die": [8, 14, 15, 16, 17, 18],
+                 "anims": {"zap": [10, 10, 11, 12, 13, 12, 10]}},
+      "desc": "It slings clappers torn out of village bells, each one wrapped in a scrap of prayer.",
+      "answer": "Close the distance or break its line of sight. It gives ground only once in a while." },
+    { "id": "cult.toller", "name": "Toller of the Cracked Bell", "role": "caster", "al": [6, 12], "introAl": 6,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "storm", "range": 5,
+      "abilities": [
+        {"key": "heavy", "id": "knell", "name": "Knell", "shape": "plus:1", "windup": 1, "cd": 5, "power": 1.6,
+         "range": 5, "element": "storm", "status": {"shock": 1}, "anim": "zap"},
+        {"key": "malison", "id": "malison", "name": "Malison", "windup": 0, "cd": 8, "range": 5,
+         "status": {"weaken": 4}, "anim": "zap"} ],
+      "sprite": {"row": 0, "idle": [3, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2], "run": [10, 3, 4, 5, 6],
+                 "attack": [10, 7, 8, 9, 0], "windup": [7], "die": [8, 14, 15, 16, 17, 18],
+                 "anims": {"zap": [10, 10, 11, 12, 13, 12, 10]}},
+      "desc": "It carries a hand-bell with a split lip and rings it for every name it no longer remembers.",
+      "answer": "The knell falls on a cross of tiles: one diagonal step takes you out of it." },
+    { "id": "cult.deacon", "name": "Bell Deacon", "role": "summoner", "al": [7, 12], "introAl": 7,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical",
+      "abilities": [
+        {"key": "exhume", "id": "exhume", "name": "Exhume", "windup": 1, "cd": 8, "summon": "ghoul.gnawling",
+         "count": 2, "cap": 4, "range": 2, "anim": "zap"} ],
+      "sprite": {"row": 2, "idle": [3, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2], "run": [10, 3, 4, 5, 6],
+                 "attack": [10, 7, 8, 9, 0], "windup": [7], "die": [8, 14, 15, 16, 17, 18],
+                 "anims": {"zap": [10, 10, 11, 12, 13, 12, 10]}},
+      "desc": "It plants its pole-bell in the earth and calls the parish to service. The parish comes up.",
+      "answer": "Reach it before the ground opens, or spend the corpses yourself before it can." },
+    { "id": "cult.chorister", "name": "Cracked Chorister", "role": "support", "al": [8, 12], "introAl": 8,
+      "hp": 1.0, "dmg": 1.0, "armour": 0, "element": "physical",
+      "abilities": [
+        {"key": "mend", "id": "hymn", "name": "Hymn of Mending", "range": 5, "heal": 0.08, "breakPct": 0.1,
+         "cd": 6, "anim": "zap"} ],
+      "sprite": {"row": 3, "idle": [3, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2], "run": [10, 3, 4, 5, 6],
+                 "attack": [10, 7, 8, 9, 0], "windup": [7], "die": [8, 14, 15, 16, 17, 18],
+                 "anims": {"zap": [10, 10, 11, 12, 13, 12, 10]}},
+      "desc": "Its mask is fixed open on a single note. While it sings, the wounded around it close up.",
+      "answer": "Break the hymn with a hard blow or a stun, or step behind something it cannot see past." }
+  ]
+}

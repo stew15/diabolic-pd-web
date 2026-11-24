@@ -1,0 +1,139 @@
+{
+  "_doc": "Act I spawn tables (docs/arch/40-m4-design.md §3.12, §4.3, §4.4, §5.3). One row per overworld region ('region:<key>') and per dungeon floor ('floor:<id>'); al is the row's area-level band (checked against World for a registered location). budget is spent by member weight (monsters.json roles, §3.3). A group's members are [id, min, max]; the first is the leader, the rest are MINION rank. minAl/maxAl narrow where a group may roll; terrain 'water' puts the whole group on water cells. packs: champion packs (one non-swarm monster of the row as CHAMPION + 3-5 minions of its family, one modifier; packOnly narrows the modifier pool, packNear names the lantern the pack is placed nearest to). elites: generated named elites (ELITE rank, two modifiers, a seeded name); keyElite gives the first of them the KEY flag. warden: the authored named elite of a dungeon's last floor (ELITE, KEY, its two modifiers ignore minAl; hp/dmg are tuning factors read by the champion engine). boss: the row's boss (placed by its arena, not by the spawner). roleFloor: the fewest roles the row may offer (default 3, §3.9 rule 10).",
+  "areas": [
+    { "where": "region:coach_road", "al": [1, 2], "budget": 10, "packs": 0, "elites": 0, "roleFloor": 2,
+      "groups": [
+        {"w": 50, "members": [["ghoul.gnawling", 3, 5]]},
+        {"w": 35, "members": [["ghoul.grave", 1, 1]]},
+        {"w": 15, "members": [["carrion.murder", 1, 2]], "minAl": 2} ] },
+
+    { "where": "region:hagstone", "al": [2, 4], "budget": 26, "packs": 1, "elites": 0,
+      "packOnly": ["blood_frenzied", "ironhide"], "packNear": "act1.crossways",
+      "groups": [
+        {"w": 35, "members": [["wolf.moor", 3, 4]]},
+        {"w": 20, "members": [["ghoul.grave", 1, 1]]},
+        {"w": 20, "members": [["carrion.murder", 1, 2]]},
+        {"w": 10, "members": [["ghoul.gnawling", 3, 5]]},
+        {"w": 10, "members": [["plague.carter", 1, 1]], "minAl": 3},
+        {"w": 5,  "members": [["wolf.greymuzzle", 1, 1], ["wolf.moor", 2, 3]], "minAl": 3} ] },
+
+    { "where": "region:sallowmere", "al": [4, 6], "budget": 26, "packs": 1, "elites": 0,
+      "groups": [
+        {"w": 30, "members": [["plague.carter", 1, 1]]},
+        {"w": 20, "members": [["plague.carter", 1, 1], ["plague.thurifer", 1, 1]], "minAl": 5},
+        {"w": 20, "members": [["drowned.parishioner", 1, 2]], "terrain": "water"},
+        {"w": 15, "members": [["ghoul.gnawling", 3, 5]]},
+        {"w": 10, "members": [["carrion.murder", 1, 2]]},
+        {"w": 5,  "members": [["cult.slinger", 1, 1]], "minAl": 6} ] },
+
+    { "where": "region:lychgate", "al": [6, 8], "budget": 26, "packs": 1, "elites": 1, "keyElite": true,
+      "groups": [
+        {"w": 25, "members": [["ghoul.grave", 1, 1], ["ghoul.gnawling", 2, 3]], "maxAl": 7},
+        {"w": 20, "members": [["revenant.mailed", 1, 1]]},
+        {"w": 15, "members": [["revenant.arbalester", 1, 1]], "maxAl": 6},
+        {"w": 15, "members": [["revenant.arbalester", 1, 1], ["revenant.mailed", 1, 1]], "minAl": 7},
+        {"w": 15, "members": [["carrion.murder", 1, 2]]},
+        {"w": 15, "members": [["cult.toller", 1, 1], ["cult.slinger", 1, 1]]},
+        {"w": 10, "members": [["cult.deacon", 1, 1], ["ghoul.gnawling", 2, 3]], "minAl": 7, "maxAl": 7} ] },
+
+    { "where": "region:harrowdene", "al": [8, 10], "budget": 26, "packs": 1, "elites": 0,
+      "groups": [
+        {"w": 35, "members": [["wolf.greymuzzle", 1, 1], ["wolf.moor", 2, 3]]},
+        {"w": 15, "members": [["carrion.murder", 1, 2]]},
+        {"w": 15, "members": [["cult.slinger", 1, 1], ["cult.chorister", 1, 1]]},
+        {"w": 15, "members": [["cult.toller", 1, 1], ["cult.deacon", 1, 1]]},
+        {"w": 20, "members": [["revenant.mailed", 2, 2]]} ] },
+
+    { "where": "region:merrow", "al": [10, 12], "budget": 26, "packs": 1, "elites": 1, "keyElite": true,
+      "groups": [
+        {"w": 25, "members": [["drowned.parishioner", 1, 2]], "terrain": "water"},
+        {"w": 20, "members": [["revenant.mailed", 1, 1], ["revenant.arbalester", 1, 1]]},
+        {"w": 20, "members": [["cult.toller", 1, 1], ["cult.chorister", 1, 1]]},
+        {"w": 15, "members": [["cult.slinger", 1, 1], ["cult.deacon", 1, 1]]},
+        {"w": 20, "members": [["drowned.sister", 1, 2]]} ] },
+
+    { "where": "floor:110", "al": [5, 5], "budget": 10, "packs": 0, "elites": 0,
+      "groups": [
+        {"w": 40, "members": [["drowned.parishioner", 1, 2]]},
+        {"w": 25, "members": [["plague.carter", 1, 1]]},
+        {"w": 20, "members": [["plague.thurifer", 1, 1]]},
+        {"w": 15, "members": [["ghoul.gnawling", 3, 5]]} ] },
+
+    { "where": "floor:111", "al": [6, 6], "budget": 11, "packs": 0, "elites": 0,
+      "warden": {"monster": "plague.carter", "name": "Reeve Harl Dunmow", "mods": ["plague_ridden", "ironhide"]},
+      "groups": [
+        {"w": 40, "members": [["drowned.parishioner", 1, 2]]},
+        {"w": 25, "members": [["plague.carter", 1, 1]]},
+        {"w": 20, "members": [["plague.thurifer", 1, 1]]},
+        {"w": 15, "members": [["ghoul.gnawling", 3, 5]]} ] },
+
+    { "where": "floor:120", "al": [7, 7], "budget": 11, "packs": 1, "elites": 1,
+      "groups": [
+        {"w": 30, "members": [["ghoul.grave", 1, 1], ["ghoul.gnawling", 2, 3]]},
+        {"w": 25, "members": [["revenant.mailed", 1, 1]]},
+        {"w": 15, "members": [["carrion.murder", 1, 2]]},
+        {"w": 15, "members": [["cult.deacon", 1, 1]]},
+        {"w": 15, "members": [["revenant.arbalester", 1, 1]]} ] },
+
+    { "where": "floor:121", "al": [8, 8], "budget": 12, "packs": 0, "elites": 0,
+      "warden": {"monster": "revenant.mailed", "name": "Sir Aubrin Vance, the Unshriven", "mods": ["vengeful", "hungering"]},
+      "groups": [
+        {"w": 30, "members": [["ghoul.grave", 2, 2]]},
+        {"w": 25, "members": [["revenant.mailed", 1, 1]]},
+        {"w": 15, "members": [["carrion.murder", 1, 2]]},
+        {"w": 15, "members": [["cult.deacon", 1, 1]]},
+        {"w": 15, "members": [["revenant.arbalester", 1, 1]]} ] },
+
+    { "where": "floor:130", "al": [10, 10], "budget": 12, "packs": 0, "elites": 1,
+      "groups": [
+        {"w": 30, "members": [["revenant.mailed", 1, 1], ["revenant.arbalester", 1, 1]]},
+        {"w": 15, "members": [["drowned.parishioner", 1, 2]]},
+        {"w": 20, "members": [["cult.toller", 1, 1], ["cult.chorister", 1, 1]]},
+        {"w": 15, "members": [["cult.slinger", 1, 1], ["cult.deacon", 1, 1]]} ] },
+
+    { "where": "floor:131", "al": [11, 11], "budget": 12, "packs": 1, "elites": 1,
+      "groups": [
+        {"w": 30, "members": [["revenant.mailed", 1, 1], ["revenant.arbalester", 1, 1]]},
+        {"w": 15, "members": [["drowned.parishioner", 1, 2]]},
+        {"w": 20, "members": [["cult.toller", 1, 1], ["cult.chorister", 1, 1]]},
+        {"w": 15, "members": [["cult.slinger", 1, 1], ["cult.deacon", 1, 1]]} ] },
+
+    { "where": "floor:132", "al": [12, 12], "budget": 12, "packs": 0, "elites": 0,
+      "warden": {"monster": "drowned.sister", "name": "Prioress Wynne, the Unsleeping", "mods": ["hoarfrost", "unstoppable"]},
+      "groups": [
+        {"w": 30, "members": [["revenant.mailed", 1, 1], ["revenant.arbalester", 1, 1]]},
+        {"w": 15, "members": [["drowned.parishioner", 1, 2]]},
+        {"w": 20, "members": [["cult.toller", 1, 1], ["cult.chorister", 1, 1]]},
+        {"w": 15, "members": [["cult.slinger", 1, 1], ["cult.deacon", 1, 1]]},
+        {"w": 20, "members": [["drowned.sister", 1, 2]]} ] },
+
+    { "where": "floor:140", "al": [8, 8], "budget": 12, "packs": 0, "elites": 0,
+      "warden": {"monster": "cult.deacon", "name": "Deacon Ulric Marrow, the Gravewright", "mods": ["cursecaster", "warded"]},
+      "groups": [
+        {"w": 30, "members": [["cult.deacon", 1, 1], ["ghoul.grave", 1, 2]]},
+        {"w": 30, "members": [["cult.toller", 1, 1], ["cult.slinger", 1, 1]]},
+        {"w": 20, "members": [["ghoul.grave", 2, 3]]},
+        {"w": 20, "members": [["cult.chorister", 1, 1], ["revenant.mailed", 1, 1]]} ] },
+
+    { "where": "floor:150", "al": [10, 10], "budget": 12, "packs": 0, "elites": 0,
+      "warden": {"monster": "wolf.greymuzzle", "name": "Hollowjaw, Dam of the Holt", "mods": ["blood_frenzied", "vampiric"]},
+      "groups": [
+        {"w": 60, "members": [["wolf.moor", 3, 4]]},
+        {"w": 25, "members": [["carrion.murder", 1, 2]]},
+        {"w": 15, "members": [["wolf.greymuzzle", 1, 1], ["wolf.moor", 2, 3]]} ] },
+
+    { "where": "floor:190", "al": [12, 12], "budget": 6, "packs": 0, "elites": 0, "roleFloor": 2,
+      "boss": "abbess.aldreda",
+      "groups": [
+        {"w": 100, "members": [["drowned.sister", 1, 2]]} ] }
+  ],
+
+  "pois": {"shrines": 6, "coffers": 3, "gallows": 3,
+           "coffersIn": ["hagstone", "lychgate", "harrowdene"], "gallowsIn": ["hagstone", "lychgate", "harrowdene"]},
+
+  "scripted": {
+    "q1_pack":  {"al": [1, 2], "members": [["ghoul.gnawling", 4, 4], ["ghoul.grave", 2, 2]]},
+    "q2_cart":  {"al": [3, 4], "members": [["plague.carter", 1, 1], ["ghoul.gnawling", 3, 3]]},
+    "q4_grave": {"al": [6, 8], "members": [["ghoul.grave", 1, 1], ["ghoul.gnawling", 1, 2]]}
+  }
+}

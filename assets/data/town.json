@@ -1,0 +1,188 @@
+{
+  "_doc": [
+    "The residents of Lantern's Rest (docs/arch/40-m4-design.md §8.1, §8.4): per resident the quests it gives (ids of quests.json, in priority order), its service, and its lines by state. NpcMenu picks a line: the first quest that is READY (its 'ready' line), else OFFERED ('offer'), else ACTIVE ('active'); else the first 'flagLines' entry whose flag is set; else one line of the idle pool, rotated by the visit number:",
+    "the first 'regions' entry that holds ('after': that region reached; 'until': not yet reached), the 'lanterns' line, the 'done' line of every DONE quest, then 'default'. 'purchase' holds one dry line per purchase (the Rag-Picker). A service with 'requires' is offered only while that WorldProgress flag is set. Every text is at most 480 characters; {n} and {total} are the lit and listed lanterns."
+  ],
+
+  "labels": {
+    "accept":   "Accept",
+    "hand_in":  "Hand in",
+    "farewell": "Farewell"
+  },
+
+  "messages": {
+    "vendor": "Garrick is still sorting his racks. Come back soon.",
+    "apothecary": "Wenna is still unpacking the physic chest. Come back soon.",
+    "gamble": "The Rag-Picker is still untying his sacks. Come back soon.",
+    "altar": "The altar is warm, but nothing can be laid on it yet."
+  },
+
+  "residents": {
+
+    "hobb": {
+      "name": "Sexton Hobb",
+      "quests": ["lantern_must_burn", "grave_matters"],
+      "service": null,
+      "quest": {
+        "lantern_must_burn": {
+          "offer":  "I lit them every dusk for thirty years. I'll not go out there now. Something has nested round the Coach Road Lantern, and a lantern that goes untended goes out for good. Clear them off, put a flame to the wick, and the others will remember how to burn.",
+          "active": "The Coach Road Lantern, east along the old road. Mind the things round it; they were hungry before they were dead.",
+          "ready":  "I saw it from the gate. A small light, but it's ours. Sit a moment. You've earned that much from an old man.",
+          "done":   "One wick lit, and the road remembers us. The others will take a flame from it now, if you carry one."
+        },
+        "grave_matters": {
+          "offer":  "Somebody has been opening graves at Saint Ysolde's. Not robbing them. Opening them, careful, the way you'd open a door to let a guest out. I buried half those people. Go and look, and tell me I'm wrong.",
+          "active": "The cart-ruts from the churchyard run west, toward the barrow on the moor. Nobody goes there. That's rather the point of a barrow.",
+          "ready":  "Marrow. I knew him when he was only a deacon with cold hands. Well. I'll fill the graves in again. It's what I'm for.",
+          "done":   "The churchyard sleeps again. I walk it every evening, all the same. Habit, and a little spite."
+        }
+      },
+      "lanterns": {
+        "keys": ["act1.coach_road", "act1.crossways", "act1.sallowmere", "act1.lychgate", "act1.millrace", "act1.abbey_gate"],
+        "none": "Not one lantern burns out there. I count them every night from the gate, and every night the count is nothing.",
+        "some": "{n} of {total} lanterns burning, by my count from the gate. Fewer than I kept. More than I feared.",
+        "all":  "All {total} lanterns lit. I counted twice. I'll count again tomorrow, but I think I'll believe it."
+      },
+      "regions": [
+        { "until": "coach_road", "text": "The Old Coach Road starts at our gate. Walk it east. It's the only way anywhere now." },
+        { "until": "hagstone",   "text": "Past the coach road the ground goes up into Hagstone Moor. Stones that lean, and wind that doesn't stop to breathe." },
+        { "until": "sallowmere", "text": "South of the moor is Sallowmere, where the water got into everything. Take dry boots and don't expect to keep them." },
+        { "until": "lychgate",   "text": "You haven't seen Lychgate Acre yet. My churchyard is there, and my dead, and I'd thank you to be polite to both." },
+        { "until": "harrowdene", "text": "Harrowdene lies beyond the Acre. Mill country, once. The wheel still turns some nights, and nobody turns it." },
+        { "until": "merrow",     "text": "Only Merrow is left, the abbey and its mere. I've no advice for Merrow. I never went, and I'm the better for it." }
+      ],
+      "default": [
+        "A sexton's work never ends. People keep dying, and lately they won't stay put.",
+        "The gate stays open. Shutting it never kept anything out that wanted in."
+      ]
+    },
+
+    "wenna": {
+      "name": "Wenna",
+      "quests": ["plague_cart"],
+      "service": { "id": "apothecary", "label": "Apothecary", "requires": "apothecary_open" },
+      "quest": {
+        "plague_cart": {
+          "offer":  "My cart went out to the moor with the physic chest and never came back. The driver neither. Everything I know how to make is in that chest. Find the cart, follow it if you must, and bring the chest home. I'll stock the draughts the parish needs.",
+          "active": "Hagstone Moor first, where the road bends. If the cart's gone on without its driver, the ruts will say where.",
+          "ready":  "The chest. Oh, the hinges are bent, but the bottles held. Give me a night and I'll have the shelves full.",
+          "done":   "Every draught on that shelf came out of a chest you carried. I write your name on none of them. It would frighten the customers."
+        }
+      },
+      "flagLines": [
+        { "flag": "apothecary_open", "text": "Healing, clarity, a little courage in a stoppered bottle. Take what you need. Pay what it costs; I can't do it cheaper and stay alive." }
+      ],
+      "default": [
+        "Mind the step. I've herbs drying on it, and they're worth more than the step.",
+        "Sallowmere damp gets into the lungs. If you cough, come to me before you come to Hobb."
+      ]
+    },
+
+    "odile": {
+      "name": "Sister Odile",
+      "quests": ["odiles_reliquary", "drowned_abbess"],
+      "service": null,
+      "quest": {
+        "odiles_reliquary": {
+          "offer":  "Saint Ysolde's knucklebone was carried from the bone-house to the Charnel House for safekeeping. Safekeeping. A knight sits over it now and will not let anyone pass, though he has been dead some years. Bring it back to the parish. She was ours before she was anyone's.",
+          "active": "The bone-house is in Lychgate Acre; the Charnel House lies under it. Sir Aubrin was a good man once. Remember that, and then do what you must.",
+          "ready":  "So small a thing, to have been fought over. Thank you. Kneel, if you can bear it; there is strength in a blessing, even mine.",
+          "done":   "Her bone rests in the chapel again. I pray beside it, and some nights I think it listens."
+        },
+        "drowned_abbess": {
+          "offer":  "The bell-rope hangs at the stair, and the Nave stands open. Mother Aldreda is down there still, ringing for a parish that drowned. I was her novice. I would go myself if my hands were steady. Lay her to rest. Please.",
+          "active": "The Flooded Nave, beneath Merrow Abbey. Whatever she says to you, she means kindly. That is what makes it terrible.",
+          "ready":  "Then the bell is quiet. I heard it stop, I think, from here. Tell me she was peaceful at the last, even if she was not.",
+          "done":   "I light a candle for her at dusk, beside Hobb's lanterns. It does no good, and I do it anyway."
+        }
+      },
+      "default": [
+        "Come to me when you are hurt. That is what I am for, and I would rather be used than admired.",
+        "The parish prays less than it did. I pray more, to make up the difference."
+      ]
+    },
+
+    "garrick": {
+      "name": "Garrick Thane",
+      "quests": [],
+      "service": { "id": "vendor", "label": "Trade" },
+      "regions": [
+        { "after": "merrow",     "text": "You've the look of someone who's seen the abbey. Whatever you need, I'll forge it heavier." },
+        { "after": "lychgate",   "text": "Lychgate mud on your boots. Graveyard iron is poor iron; bring me anything good you find." },
+        { "after": "hagstone",   "text": "Moor wind dulls an edge faster than you'd think. Let me see your blade before you go back up." }
+      ],
+      "default": [
+        "Steel, leather, a fair price. I'll buy what you can't carry and sell you what you can.",
+        "Hit things with the sharp end. That's the whole of my advice, and I don't charge for it."
+      ]
+    },
+
+    "ragpicker": {
+      "name": "The Rag-Picker",
+      "quests": [],
+      "service": { "id": "gamble", "label": "Rummage", "requires": "lanterns_open" },
+      "default": [
+        "Everything in the sack was somebody's once. Most of them have stopped needing it.",
+        "I followed the light in. Light means people, and people mean things they've put down and forgotten.",
+        "No refunds. The previous owners never asked for one either."
+      ],
+      "purchase": [
+        "Lovely. I'd have kept it, but I'm a terrible fit for most things.",
+        "Don't ask where that came from. I asked once, and it told me.",
+        "A bargain. For one of us, certainly.",
+        "It was wrapped in a shroud. The shroud's extra.",
+        "Treat it well. The last man didn't, and look at him. Well, you can't. That's the point.",
+        "I polished it myself. Mostly with my sleeve.",
+        "Slightly haunted. You'll hardly notice after the first week."
+      ]
+    },
+
+    "cael": {
+      "name": "Brother Cael",
+      "quests": ["bell_rope"],
+      "service": { "id": "altar", "label": "Altar", "requires": "altar_unlocked" },
+      "quest": {
+        "bell_rope": {
+          "offer":  "When the bell cracked, Brother Tam cut the rope and ran with it, and the stair to the Nave has been sealed ever since. He kept a satchel. If he was taken near the burnt mill in Harrowdene, it may be there still. Bring the rope back to the stair and hang it. The abbey will open for the bell's own rope and nothing else.",
+          "active": "The burnt mill first, for Tam's satchel. After that, whatever took the rope. Then the sealed stair in the Abbey Crypts.",
+          "ready":  "You hung it. I felt the abbey settle, the way a house does when someone finally comes home. The altar here has warmed; I don't know what it wants yet.",
+          "done":   "Tam was my friend. He ran because he was afraid, and he is forgiven for it. I have decided so."
+        }
+      },
+      "flagLines": [
+        { "flag": "altar_unlocked", "text": "The altar is warm. Come back when you have something worth laying on it." }
+      ],
+      "default": [
+        "I keep the altar swept. Nobody uses it, but a swept altar has hope in it.",
+        "The cult of the Cracked Bell thinks the dead want waking. I think the dead want to be left alone, like the rest of us."
+      ]
+    },
+
+    "maud": {
+      "name": "Maud",
+      "quests": [],
+      "service": { "id": "stash", "label": "Strongbox" },
+      "regions": [
+        { "after": "merrow",     "text": "They say the abbey bell rang last night, though it's cracked and has no rope. I say people will say anything after dark." },
+        { "after": "harrowdene", "text": "Word from Harrowdene: the miller's wheel turns by itself and grinds nothing. A cousin of mine saw it. She sees a lot." },
+        { "after": "lychgate",   "text": "Someone's been digging at Saint Ysolde's. Not Hobb; Hobb digs neat. This is the other kind." },
+        { "after": "sallowmere", "text": "Sallowmere folk say the mere has a voice when the wind drops. I've heard it too, and I'd rather not again." },
+        { "after": "hagstone",   "text": "There's a cart up on Hagstone with no horse and no driver, and it still moves at night. Ask Wenna. Or don't." }
+      ],
+      "default": [
+        "Your strongbox is where you left it. I don't look inside. Mostly.",
+        "Rumours? I've a few, and they keep better than bread."
+      ]
+    },
+
+    "confessor": {
+      "name": "The Confessor",
+      "quests": [],
+      "service": { "id": "respec", "label": "Confess" },
+      "default": [
+        "Every road you took can be untaken, for a price. Not every road, of course. Only the ones in you.",
+        "Sit. Tell me what you regret learning. I will help you forget it, and you will help me with the bill."
+      ]
+    }
+  }
+}
